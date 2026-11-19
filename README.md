@@ -28,8 +28,8 @@ With no environment variables the app runs in **demo mode**: a seeded in-memory 
 
 ## Go live with Supabase
 
-1. Create a Supabase project.
-2. Run `supabase/migrations/0001_init.sql`, then `supabase/seed.sql` (SQL editor or `supabase db push`).
+1. Create a Supabase project dedicated to Agyapa Tiles.
+2. Paste `supabase/setup.sql` (schema + sample products in one go) into the SQL Editor and run it. Or use `supabase db push` with the files in `supabase/migrations/` and then `supabase/seed.sql`.
 3. Copy `.env.example` → `.env.local` and fill in the URL and anon/publishable key.
 4. In **Authentication → Providers → Email**, decide whether to require email confirmation.
 5. Sign up on `/login`, then promote yourself:
