@@ -24,7 +24,7 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-With no environment variables the app runs in **demo mode**: a seeded in-memory catalogue and orders (resets on restart) and an open `/admin`, so you can explore everything immediately. Demo admin is disabled in production builds unless `ALLOW_DEMO_ADMIN=true`.
+Without Supabase keys the storefront shows a built-in sample catalogue so the site never renders empty, but accounts, checkout persistence and `/admin` require Supabase. There is no demo or bypass admin account: `/admin` always requires signing in as a user whose `profiles.role` is `admin`.
 
 ## Go live with Supabase
 

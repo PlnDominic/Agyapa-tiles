@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/Button";
-import { ArrowRight, LockIcon } from "@/components/ui/icons";
+import { LockIcon } from "@/components/ui/icons";
 import { createClient } from "@/lib/supabase/client";
 import { HERO_BACKGROUND, SITE } from "@/lib/config";
 
@@ -53,8 +53,7 @@ function AuthForm() {
     return (
       <div className="rounded-[28px] bg-steel-50 p-8 text-center">
         <p className="font-semibold">Sign-in isn&rsquo;t connected yet</p>
-        <p className="mt-2 text-sm text-steel-600">Add your Supabase keys to <code className="rounded bg-white px-1.5 py-0.5">.env.local</code> (or Vercel environment variables) to enable accounts and admin sign-in.</p>
-        <Link href="/admin" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:underline">Open demo admin <ArrowRight width={16} height={16} /></Link>
+        <p className="mt-2 text-sm text-steel-600">Please check back soon, or <Link href="/" className="font-semibold text-brand-600 hover:underline">return to the store</Link>.</p>
       </div>
     );
   }

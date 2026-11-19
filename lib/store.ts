@@ -1,13 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
-import { isDemo, demoAdminAllowed } from "./config";
+import { isDemo } from "./config";
 import { DEMO_CATEGORIES, DEMO_PRODUCTS } from "./demo-data";
-import { deliveryFee } from "./format";
 import type {
   Address, Category, Order, OrderDetail, OrderItem, OrderStatus, PaymentMethod, Product,
 } from "./types";
 
-/* ───────────────────────── Demo state (in memory) ───────────────────────── */
+/* ───────────────────────── Fallback sample catalogue (in memory; read-only for shoppers) ───────────────────────── */
 
 interface DemoState {
   products: Product[];
@@ -15,50 +14,11 @@ interface DemoState {
   seq: number;
 }
 
-function seedOrders(products: Product[]): OrderDetail[] {
-  const people = [
-    ["Kwame Mensah", "kwame@example.com", "Accra", "Greater Accra"],
-    ["Ama Serwaa", "ama@example.com", "Kumasi", "Ashanti"],
-    ["Efua Boateng", "efua@example.com", "Takoradi", "Western"],
-    ["Yaw Owusu", "yaw@example.com", "Tema", "Greater Accra"],
-    ["Abena Quartey", "abena@example.com", "Cape Coast", "Central"],
-    ["Kofi Annan Jr", "kofi@example.com", "Accra", "Greater Accra"],
-    ["Nana Adjei", "nana@example.com", "Kumasi", "Ashanti"],
-    ["Akosua Frimpong", "akosua@example.com", "Tamale", "Northern"],
-  ];
-  const statuses: OrderStatus[] = ["delivered", "delivered", "out_for_delivery", "shipped", "processing", "confirmed", "pending", "delivered"];
-  const flow: OrderStatus[] = ["pending", "confirmed", "processing", "shipped", "out_for_delivery", "delivered"];
-  return people.map((p, i): OrderDetail => {
-    const created = Date.now() - (i * 1.7 + 0.3) * 86_400_000;
-    const picks = [products[(i * 3) % products.length], products[(i * 5 + 2) % products.length]];
-    const items: OrderItem[] = picks.map((pr, j) => ({
-      id: `oi-${i}-${j}`, product_id: pr.id, name: pr.name, sku: pr.sku, pattern_key: pr.pattern_key,
-      color_hex: pr.color_hex, accent_hex: pr.accent_hex, unit: pr.unit, unit_price: pr.price, quantity: 12 + ((i * 7 + j * 11) % 40),
-    }));
-    const subtotal = items.reduce((s, it) => s + it.unit_price * it.quantity, 0);
-    const fee = deliveryFee(subtotal);
-    const status = statuses[i];
-    const upto = flow.indexOf(status);
-    return {
-      order: {
-        id: `ord-${i + 1}`, order_number: `AGY-${100241 + i}`, user_id: null, email: p[1], full_name: p[0], phone: "+233 24 555 01" + (10 + i),
-        shipping_address: { line1: `${12 + i} Ring Road`, city: p[2], region: p[3] }, status,
-        payment_method: (["momo", "cod", "bank"] as const)[i % 3], payment_status: status === "delivered" ? "paid" : "unpaid",
-        subtotal, shipping_fee: fee, total: subtotal + fee, notes: null, created_at: new Date(created).toISOString(),
-      },
-      items,
-      events: flow.slice(0, upto + 1).map((st, k) => ({
-        id: `ev-${i}-${k}`, status: st, message: null, created_at: new Date(created + k * 6 * 3_600_000).toISOString(),
-      })),
-    };
-  }).reverse();
-}
-
 const g = globalThis as unknown as { __agyapaDemo?: DemoState };
 function demo(): DemoState {
   if (!g.__agyapaDemo) {
     const products = structuredClone(DEMO_PRODUCTS);
-    g.__agyapaDemo = { products, orders: seedOrders(products), seq: 100250 };
+    g.__agyapaDemo = { products, orders: [], seq: 100250 };
   }
   return g.__agyapaDemo;
 }
@@ -76,12 +36,8 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   return { id: user.id, email: user.email ?? "", full_name: profile?.full_name ?? null, role: (profile?.role as "customer" | "admin") ?? "customer" };
 }
 
-/** Throws a redirect unless the caller is an admin. Use at the top of every admin page and action. */
+/** Throws a redirect unless the caller is a signed-in admin (there is no demo/bypass account). Call at the top of every admin page and action. */
 export async function requireAdmin(): Promise<SessionUser> {
-  if (isDemo) {
-    if (!demoAdminAllowed) redirect("/");
-    return { id: "demo", email: "demo@agyapatiles.com", full_name: "Demo Admin", role: "admin" };
-  }
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/admin");
   if (user.role !== "admin") redirect("/");
@@ -168,32 +124,7 @@ export interface CreateOrderInput {
 }
 
 export async function createOrder(input: CreateOrderInput): Promise<{ order_number: string; total: number }> {
-  if (isDemo) {
-    const d = demo();
-    let subtotal = 0;
-    const lines: OrderItem[] = [];
-    for (const it of input.items) {
-      const p = d.products.find((x) => x.id === it.product_id && x.active);
-      if (!p) throw new Error("A product in your bag is no longer available");
-      if (p.stock < it.quantity) throw new Error(`Only ${p.stock} left of ${p.name}`);
-      subtotal += p.price * it.quantity;
-      lines.push({ id: crypto.randomUUID(), product_id: p.id, name: p.name, sku: p.sku, pattern_key: p.pattern_key, color_hex: p.color_hex, accent_hex: p.accent_hex, unit: p.unit, unit_price: p.price, quantity: it.quantity });
-    }
-    lines.forEach((l) => { d.products.find((x) => x.id === l.product_id)!.stock -= l.quantity; });
-    const fee = deliveryFee(subtotal);
-    const number = `AGY-${++d.seq}`;
-    const now = new Date().toISOString();
-    d.orders.unshift({
-      order: {
-        id: crypto.randomUUID(), order_number: number, user_id: null, email: input.email.toLowerCase(), full_name: input.full_name, phone: input.phone,
-        shipping_address: input.address, status: "pending", payment_method: input.payment_method, payment_status: "unpaid",
-        subtotal, shipping_fee: fee, total: subtotal + fee, notes: input.notes ?? null, created_at: now,
-      },
-      items: lines,
-      events: [{ id: crypto.randomUUID(), status: "pending", message: "Order received. We will confirm it shortly.", created_at: now }],
-    });
-    return { order_number: number, total: subtotal + fee };
-  }
+  if (isDemo) throw new Error("Online ordering is temporarily unavailable. Please call us to place your order.");
   const sb = await createClient();
   const { data, error } = await sb.rpc("create_order", {
     p_email: input.email, p_full_name: input.full_name, p_phone: input.phone, p_address: input.address,

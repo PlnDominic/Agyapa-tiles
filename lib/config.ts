@@ -11,9 +11,8 @@ export const isSupabaseConfigured = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
 );
 
-/** Demo mode: no Supabase credentials, so the catalogue + orders live in memory. Never open in production. */
+/** No Supabase credentials: the storefront falls back to the built-in sample catalogue. Admin and accounts are never available in this state. */
 export const isDemo = !isSupabaseConfigured;
-export const demoAdminAllowed = process.env.NODE_ENV !== "production" || process.env.ALLOW_DEMO_ADMIN === "true";
 
 /** Hero background photo. Place your image at public/brand/hero-bg.jpg (landscape, ~2400px wide, dark works best). */
 export const HERO_BACKGROUND = "/brand/hero-bg.jpg";
