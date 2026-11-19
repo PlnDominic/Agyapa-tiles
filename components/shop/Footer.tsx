@@ -17,7 +17,7 @@ export function Footer() {
           <Image src="/brand/logo-full.jpg" alt="Agyapa Tiles — we serve our customers best" width={260} height={167} className="h-auto w-56 mix-blend-multiply" />
           <ul className="mt-6 space-y-2 text-sm text-steel-600">
             <li className="flex items-center gap-2"><MapPinIcon width={16} height={16} className="text-brand-600" />{SITE.address}</li>
-            <li className="flex items-center gap-2"><PhoneIcon width={16} height={16} className="text-brand-600" />{SITE.phone}</li>
+            <li className="flex items-center gap-2"><PhoneIcon width={16} height={16} className="text-brand-600" /><a href={`tel:${SITE.phoneTel}`} className="hover:text-brand-600">{SITE.phone}</a></li>
           </ul>
         </div>
         {cols.map((c) => (

@@ -40,7 +40,7 @@ export default async function AdminHome() {
             {s.topProducts.length === 0 && <li className="text-sm text-steel-500">No sales yet.</li>}
             {s.topProducts.map((p) => (
               <li key={p.name} className="flex items-center gap-3">
-                <Thumb pattern={p.pattern_key ?? "marble"} base={p.color_hex ?? "#eee"} accent={p.accent_hex ?? "#999"} seed={p.name} alt="" className="size-11 shrink-0 rounded-xl" sizes="44px" />
+                <Thumb pattern={p.pattern_key ?? "marble"} base={p.color_hex ?? "#eee"} accent={p.accent_hex ?? "#999"} seed={p.name} alt="" className="size-11 shrink-0" sizes="44px" />
                 <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{p.name}</p><p className="text-xs text-steel-500">{p.qty} sold</p></div>
                 <p className="text-sm font-semibold tabular-nums">{moneyShort(p.revenue)}</p>
               </li>
@@ -53,7 +53,7 @@ export default async function AdminHome() {
             {s.lowStock.length === 0 && <li className="text-sm text-steel-500">All products are well stocked.</li>}
             {s.lowStock.map((p) => (
               <li key={p.id} className="flex items-center gap-3">
-                <Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt="" className="size-11 shrink-0 rounded-xl" sizes="44px" />
+                <Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt="" className="size-11 shrink-0" sizes="44px" />
                 <Link href={`/admin/products/${p.id}`} className="min-w-0 flex-1 truncate text-sm font-medium hover:text-brand-600">{p.name}</Link>
                 <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${p.stock === 0 ? "bg-brand-100 text-brand-800" : "bg-amber-100 text-amber-800"}`}>{p.stock} {p.unit}</span>
               </li>

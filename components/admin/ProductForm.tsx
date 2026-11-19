@@ -89,7 +89,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
       <aside className="space-y-4 lg:sticky lg:top-8 lg:h-fit">
         <div className="rounded-[28px] bg-steel-50 p-6">
           <h2 className="mb-4 font-semibold tracking-tight">Preview</h2>
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[24px] shadow-soft">
+          <div className="relative aspect-[4/5] overflow-hidden shadow-soft">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {image ? <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <TileArt pattern={pattern} base={base} accent={accent} seed={product?.slug ?? "new"} className="absolute inset-0 h-full w-full" />}
           </div>

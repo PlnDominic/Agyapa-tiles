@@ -11,7 +11,7 @@ export function OrderSummary({ detail }: { detail: OrderDetail }) {
       <ul className="divide-y divide-steel-100">
         {items.map((it) => (
           <li key={it.id} className="flex items-center gap-4 py-3">
-            <Thumb pattern={it.pattern_key ?? "marble"} base={it.color_hex ?? "#eee"} accent={it.accent_hex ?? "#999"} seed={it.name} alt={it.name} className="size-16 shrink-0 rounded-xl" sizes="64px" />
+            <Thumb pattern={it.pattern_key ?? "marble"} base={it.color_hex ?? "#eee"} accent={it.accent_hex ?? "#999"} seed={it.name} alt={it.name} className="size-16 shrink-0" sizes="64px" />
             <div className="min-w-0 flex-1"><p className="truncate font-medium">{it.name}</p><p className="text-sm text-steel-500">{it.quantity} {it.unit} × {money(it.unit_price)}</p></div>
             <p className="font-semibold tabular-nums">{money(it.quantity * it.unit_price)}</p>
           </li>

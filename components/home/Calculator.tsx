@@ -49,7 +49,7 @@ export function Calculator({ products }: { products: Product[] }) {
           <Reveal delay={0.1}>
             <div className="rounded-[32px] bg-white p-6 shadow-soft md:p-8">
               <div className="flex items-center gap-4">
-                <Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt={p.name} className="size-20 shrink-0 rounded-2xl" sizes="80px" />
+                <Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt={p.name} className="size-20 shrink-0" sizes="80px" />
                 <div><p className="font-semibold tracking-tight">{p.name}</p><p className="text-sm text-steel-500">{p.size} · {p.coverage_per_box} m² per box</p></div>
               </div>
               <dl className="mt-6 grid grid-cols-2 gap-3">

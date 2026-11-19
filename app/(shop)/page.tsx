@@ -19,11 +19,11 @@ export default async function Home() {
     <>
       <Hero />
       <Marquee />
+      <PromiseSection />
       <Story products={hero} />
       <Bento categories={categories} products={all} />
       <FeaturedCarousel products={(featured.length ? featured : all).slice(0, 8)} />
       <Calculator products={all.slice(0, 12)} />
-      <PromiseSection />
       <TrackingPreview />
       <Stats stats={[
         { value: all.length, label: "Finishes in the collection" },

@@ -69,7 +69,7 @@ export function CartDrawer() {
                     {lines.map((l) => (
                       <motion.li key={l.productId} layout initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex gap-4 overflow-hidden py-4">
                         <Link href={`/product/${l.slug}`} onClick={() => setOpen(false)} className="shrink-0">
-                          <Thumb pattern={l.pattern} base={l.base} accent={l.accent} imageUrl={l.imageUrl} seed={l.slug} alt={l.name} className="size-24 rounded-2xl" sizes="96px" />
+                          <Thumb pattern={l.pattern} base={l.base} accent={l.accent} imageUrl={l.imageUrl} seed={l.slug} alt={l.name} className="size-24" sizes="96px" />
                         </Link>
                         <div className="flex min-w-0 flex-1 flex-col">
                           <div className="flex justify-between gap-2">

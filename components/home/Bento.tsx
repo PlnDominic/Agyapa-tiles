@@ -29,7 +29,7 @@ export function Bento({ categories, products }: { categories: Category[]; produc
           const sample = products.find((p) => p.category?.slug === c.slug) ?? products[i % products.length];
           return (
             <Reveal key={c.id} delay={(i % 3) * 0.08} className={clsx("group relative", spans[i])}>
-              <Link href={`/shop?category=${c.slug}`} className="absolute inset-0 block overflow-hidden rounded-[32px] shadow-soft transition-shadow duration-500 hover:shadow-lift">
+              <Link href={`/shop?category=${c.slug}`} className="absolute inset-0 block overflow-hidden shadow-soft transition-shadow duration-500 hover:shadow-lift">
                 <motion.div className="absolute inset-0" whileHover={{ scale: 1.06 }} transition={{ duration: 1.1, ease: [0.28, 0.11, 0.32, 1] }}>
                   <TileArt pattern={sample.pattern_key} base={sample.color_hex} accent={sample.accent_hex} seed={c.slug} className="h-full w-full" />
                 </motion.div>

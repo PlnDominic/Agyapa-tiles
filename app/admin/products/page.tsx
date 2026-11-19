@@ -18,7 +18,7 @@ export default async function ProductsPage() {
           <tbody className="divide-y divide-steel-200">
             {products.map((p) => (
               <tr key={p.id} className="transition-colors hover:bg-white">
-                <td className="px-6 py-3"><div className="flex items-center gap-3"><Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt="" className="size-12 shrink-0 rounded-xl" sizes="48px" /><div><Link href={`/admin/products/${p.id}`} className="font-semibold hover:text-brand-600">{p.name}</Link><p className="text-xs text-steel-500">{p.sku}</p></div></div></td>
+                <td className="px-6 py-3"><div className="flex items-center gap-3"><Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt="" className="size-12 shrink-0" sizes="48px" /><div><Link href={`/admin/products/${p.id}`} className="font-semibold hover:text-brand-600">{p.name}</Link><p className="text-xs text-steel-500">{p.sku}</p></div></div></td>
                 <td className="text-steel-600">{p.category?.name ?? "—"}</td>
                 <td className="tabular-nums">{money(p.price)}</td>
                 <td><span className={`rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums ${p.stock === 0 ? "bg-brand-100 text-brand-800" : p.stock <= 100 ? "bg-amber-100 text-amber-800" : "bg-white text-steel-700"}`}>{p.stock} {p.unit}</span></td>

@@ -102,7 +102,7 @@ export default function CheckoutPage() {
           <ul className="mt-5 space-y-4">
             {lines.map((l) => (
               <li key={l.productId} className="flex items-center gap-3">
-                <Thumb pattern={l.pattern} base={l.base} accent={l.accent} imageUrl={l.imageUrl} seed={l.slug} alt={l.name} className="size-14 shrink-0 rounded-xl" sizes="56px" />
+                <Thumb pattern={l.pattern} base={l.base} accent={l.accent} imageUrl={l.imageUrl} seed={l.slug} alt={l.name} className="size-14 shrink-0" sizes="56px" />
                 <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{l.name}</p><p className="text-xs text-steel-500">{l.qty} {l.unit}</p></div>
                 <p className="text-sm font-semibold tabular-nums">{money(l.price * l.qty)}</p>
               </li>

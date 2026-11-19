@@ -1,9 +1,10 @@
 export const SITE = {
   name: "Agyapa Tiles",
   tagline: "We serve our customers best",
-  phone: "+233 24 000 0000",
+  phone: "024 596 7229",
+  phoneTel: "+233245967229",
   email: "hello@agyapatiles.com",
-  address: "Showroom & warehouse, Accra, Ghana",
+  address: "Afari, off Abuakwa – Bibiani Road, Ghana",
 };
 
 export const isSupabaseConfigured = Boolean(

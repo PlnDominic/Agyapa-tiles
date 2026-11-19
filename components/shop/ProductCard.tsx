@@ -25,7 +25,7 @@ export function ProductCard({ product: p, index = 0 }: { product: Product; index
       className="group relative flex flex-col"
     >
       <div className="relative">
-      <Link href={`/product/${p.slug}`} className="relative block aspect-[4/5] overflow-hidden rounded-[28px] bg-steel-50 shadow-soft transition-shadow duration-500 group-hover:shadow-lift">
+      <Link href={`/product/${p.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-steel-50 shadow-soft transition-shadow duration-500 group-hover:shadow-lift">
         <div className="absolute inset-0 transition-transform duration-[900ms] ease-[var(--ease-apple)] group-hover:scale-[1.07]">
           <Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt={p.name} className="h-full w-full" />
         </div>

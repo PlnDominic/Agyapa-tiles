@@ -34,7 +34,7 @@ export function ProductGallery({ product: p }: { product: Product }) {
   const v = views[i];
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-[36px] bg-steel-50 shadow-soft md:aspect-[4/4.4]">
+      <div className="relative aspect-square overflow-hidden bg-steel-50 shadow-soft md:aspect-[4/4.4]">
         <AnimatePresence mode="popLayout">
           <motion.div key={v.key} className="absolute inset-0" initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: [0.28, 0.11, 0.32, 1] }}>
             {p.image_url && i === 0 ? (
@@ -47,7 +47,7 @@ export function ProductGallery({ product: p }: { product: Product }) {
       </div>
       <div className="mt-4 grid grid-cols-3 gap-3">
         {views.map((x, k) => (
-          <button key={x.key} onClick={() => setI(k)} aria-label={`Show ${x.label} view`} aria-pressed={i === k} className={clsx("relative aspect-[4/3] overflow-hidden rounded-2xl ring-offset-2 transition-all", i === k ? "ring-2 ring-brand-600" : "opacity-70 hover:opacity-100")}>
+          <button key={x.key} onClick={() => setI(k)} aria-label={`Show ${x.label} view`} aria-pressed={i === k} className={clsx("relative aspect-[4/3] overflow-hidden ring-offset-2 transition-all", i === k ? "ring-2 ring-brand-600" : "opacity-70 hover:opacity-100")}>
             <div className="absolute inset-0 overflow-hidden"><ViewArt p={p} view={x.key} /></div>
             <span className="glass absolute inset-x-2 bottom-2 rounded-full py-0.5 text-center text-[11px] font-semibold">{x.label}</span>
           </button>

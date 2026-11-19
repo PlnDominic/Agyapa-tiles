@@ -23,7 +23,7 @@ export default function CartPage() {
           <ul className="divide-y divide-steel-100 border-y border-steel-100">
             {lines.map((l) => (
               <li key={l.productId} className="flex gap-5 py-6">
-                <Link href={`/product/${l.slug}`}><Thumb pattern={l.pattern} base={l.base} accent={l.accent} imageUrl={l.imageUrl} seed={l.slug} alt={l.name} className="size-28 rounded-3xl md:size-36" sizes="144px" /></Link>
+                <Link href={`/product/${l.slug}`}><Thumb pattern={l.pattern} base={l.base} accent={l.accent} imageUrl={l.imageUrl} seed={l.slug} alt={l.name} className="size-28 md:size-36" sizes="144px" /></Link>
                 <div className="flex flex-1 flex-col">
                   <div className="flex justify-between gap-4"><Link href={`/product/${l.slug}`} className="text-lg font-semibold tracking-[-0.02em] hover:text-brand-600">{l.name}</Link><p className="text-lg font-semibold tabular-nums">{money(l.price * l.qty)}</p></div>
                   <p className="text-sm text-steel-500">{l.size} · {money(l.price)} per {l.unit}</p>

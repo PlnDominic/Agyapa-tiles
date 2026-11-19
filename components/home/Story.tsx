@@ -45,7 +45,7 @@ export function Story({ products }: { products: Product[] }) {
           <div className="order-1 md:order-2">
             <div className="relative mx-auto aspect-[4/5] w-full max-w-[460px] max-md:max-h-[34vh] max-md:aspect-[16/10]">
               <AnimatePresence>
-                <motion.div key={active} className="absolute inset-0 overflow-hidden rounded-[40px] shadow-lift"
+                <motion.div key={active} className="absolute inset-0 overflow-hidden shadow-lift"
                   initial={{ opacity: 0, scale: 0.92, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 1.06, rotate: 2 }} transition={{ duration: 0.8, ease: [0.28, 0.11, 0.32, 1] }}>
                   <TileArt pattern={shown[active].pattern_key} base={shown[active].color_hex} accent={shown[active].accent_hex} seed={shown[active].slug} className="h-full w-full" grout />
                   <div className="glass absolute inset-x-4 bottom-4 flex items-center justify-between rounded-2xl px-4 py-3">
