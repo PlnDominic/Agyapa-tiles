@@ -6,7 +6,6 @@ import { Bento } from "@/components/home/Bento";
 import { FeaturedCarousel } from "@/components/home/FeaturedCarousel";
 import { Calculator } from "@/components/home/Calculator";
 import { Stats } from "@/components/home/Stats";
-import { PromiseSection } from "@/components/home/PromiseSection";
 import { TrackingPreview } from "@/components/home/TrackingPreview";
 import { FinalCTA } from "@/components/home/FinalCTA";
 import { FREE_DELIVERY_THRESHOLD } from "@/lib/format";
@@ -19,10 +18,9 @@ export default async function Home() {
     <>
       <Hero />
       <Marquee />
-      <PromiseSection />
+      <FeaturedCarousel products={(featured.length ? featured : all).slice(0, 8)} />
       <Story products={hero} />
       <Bento categories={categories} products={all} />
-      <FeaturedCarousel products={(featured.length ? featured : all).slice(0, 8)} />
       <Calculator products={all.slice(0, 12)} />
       <TrackingPreview />
       <Stats stats={[
