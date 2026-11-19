@@ -1,4 +1,4 @@
--- Agyapa Tiles: one-shot Supabase setup. Paste into Supabase > SQL Editor > New query > Run.
+-- Agyapa Tiles: one-shot Supabase setup (safe to run more than once). Paste into Supabase > SQL Editor > New query > Run.
 -- Contains: schema + security policies + functions, then sample products.
 
 -- Agyapa Tiles — initial schema
@@ -136,25 +136,38 @@ alter table public.order_items  enable row level security;
 alter table public.order_events enable row level security;
 
 -- profiles
-create policy "own profile read"   on public.profiles for select using (id = auth.uid() or public.is_admin());
+drop policy if exists "own profile read" on public.profiles;
+create policy "own profile read" on public.profiles for select using (id = auth.uid() or public.is_admin());
+drop policy if exists "own profile update" on public.profiles;
 create policy "own profile update" on public.profiles for update using (id = auth.uid())
   with check (id = auth.uid() and role = (select role from public.profiles where id = auth.uid()));
+drop policy if exists "admin manage profiles" on public.profiles;
 create policy "admin manage profiles" on public.profiles for all using (public.is_admin()) with check (public.is_admin());
 
 -- catalogue
+drop policy if exists "public read categories" on public.categories;
 create policy "public read categories" on public.categories for select using (true);
+drop policy if exists "admin write categories" on public.categories;
 create policy "admin write categories" on public.categories for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "public read active products" on public.products;
 create policy "public read active products" on public.products for select using (active or public.is_admin());
+drop policy if exists "admin write products" on public.products;
 create policy "admin write products" on public.products for all using (public.is_admin()) with check (public.is_admin());
 
 -- orders (creation happens only through create_order(), which is security definer)
+drop policy if exists "own orders read" on public.orders;
 create policy "own orders read" on public.orders for select using (user_id = auth.uid() or public.is_admin());
+drop policy if exists "admin write orders" on public.orders;
 create policy "admin write orders" on public.orders for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "own items read" on public.order_items;
 create policy "own items read" on public.order_items for select using (
   exists (select 1 from public.orders o where o.id = order_id and (o.user_id = auth.uid() or public.is_admin())));
+drop policy if exists "admin write items" on public.order_items;
 create policy "admin write items" on public.order_items for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "own events read" on public.order_events;
 create policy "own events read" on public.order_events for select using (
   exists (select 1 from public.orders o where o.id = order_id and (o.user_id = auth.uid() or public.is_admin())));
+drop policy if exists "admin write events" on public.order_events;
 create policy "admin write events" on public.order_events for all using (public.is_admin()) with check (public.is_admin());
 
 -- ───────────────────────── Business logic ─────────────────────────
@@ -281,9 +294,13 @@ grant execute on function public.admin_update_order(uuid, text, text, text) to a
 insert into storage.buckets (id, name, public) values ('product-images', 'product-images', true)
 on conflict (id) do nothing;
 
+drop policy if exists "public read product images" on storage.objects;
 create policy "public read product images" on storage.objects for select using (bucket_id = 'product-images');
+drop policy if exists "admin upload product images" on storage.objects;
 create policy "admin upload product images" on storage.objects for insert with check (bucket_id = 'product-images' and public.is_admin());
+drop policy if exists "admin update product images" on storage.objects;
 create policy "admin update product images" on storage.objects for update using (bucket_id = 'product-images' and public.is_admin());
+drop policy if exists "admin delete product images" on storage.objects;
 create policy "admin delete product images" on storage.objects for delete using (bucket_id = 'product-images' and public.is_admin());
 
 -- To make yourself an admin after signing up:
