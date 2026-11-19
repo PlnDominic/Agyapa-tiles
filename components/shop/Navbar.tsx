@@ -42,7 +42,7 @@ export function Navbar({ user }: { user: { name: string | null; admin: boolean }
             <span className="whitespace-nowrap text-[0.9375rem] tracking-[-0.03em] sm:text-[1.0625rem]"><b className="font-extrabold">AGYAPA</b> <span className="font-light">TILES</span></span>
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          <nav className={clsx("hidden items-center gap-1", onHero ? "lg:hidden" : "lg:flex")} aria-label="Primary">
             {links.map((l) => {
               const active = l.href === "/shop" ? pathname === "/shop" : pathname === l.href.split("?")[0] && l.href !== "/shop";
               return (
