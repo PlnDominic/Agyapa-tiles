@@ -27,7 +27,7 @@ export function Hero() {
       {/* Background */}
       <motion.div aria-hidden className="absolute inset-[-2%]" style={{ y: bgY, scale: bgScale }}>
         <TileArt pattern="marble" base="#17171a" accent="#d9d9dc" seed="hero" className="absolute inset-0 h-full w-full" />
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${HERO_BACKGROUND})` }} />
+        <div className="absolute inset-0 bg-cover bg-[position:75%_center] md:bg-center" style={{ backgroundImage: `url(${HERO_BACKGROUND})` }} />
       </motion.div>
       <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent" />
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent" />
