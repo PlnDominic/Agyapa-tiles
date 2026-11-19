@@ -17,3 +17,9 @@ export const demoAdminAllowed = process.env.NODE_ENV !== "production" || process
 
 /** Hero background photo. Place your image at public/brand/hero-bg.jpg (landscape, ~2400px wide, dark works best). */
 export const HERO_BACKGROUND = "/brand/hero-bg.jpg";
+
+/**
+ * Preview mode: while true, every link that leads away from the homepage is inert
+ * (nav, buttons, cards, footer, bag). Set NEXT_PUBLIC_HOME_ONLY=false in the environment to go fully live.
+ */
+export const HOME_ONLY = process.env.NEXT_PUBLIC_HOME_ONLY !== "false";

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { NavLink as Link } from "@/components/ui/NavLink";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { TileArt } from "@/components/ui/TileArt";

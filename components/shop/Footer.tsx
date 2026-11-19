@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { NavLink as Link } from "@/components/ui/NavLink";
 import { SITE } from "@/lib/config";
 import { MapPinIcon, PhoneIcon } from "@/components/ui/icons";
 
@@ -34,7 +34,10 @@ export function Footer() {
       <div className="border-t border-steel-200">
         <div className="container-x flex flex-col gap-2 py-6 text-xs text-steel-500 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} Agyapa Tiles. All rights reserved.</p>
-          <p>{SITE.tagline}.</p>
+          <p>
+            Developed By:{" "}
+            <a href="https://www.ecstasytechnologies.com" target="_blank" rel="noopener noreferrer" className="font-medium text-steel-700 transition-colors hover:text-brand-600">Ecstasy Technologies</a>
+          </p>
         </div>
       </div>
     </footer>

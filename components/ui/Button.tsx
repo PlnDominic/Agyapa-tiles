@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink as Link } from "./NavLink";
 import clsx from "clsx";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 

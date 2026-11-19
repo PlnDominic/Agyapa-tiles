@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Thumb } from "@/components/shop/Thumb";
 import { useCart } from "@/components/shop/CartProvider";
 import { money } from "@/lib/format";
+import { HOME_ONLY } from "@/lib/config";
 import type { Product } from "@/lib/types";
 
 export function Calculator({ products }: { products: Product[] }) {
@@ -62,7 +63,7 @@ export function Calculator({ products }: { products: Product[] }) {
                 <span className="text-sm font-medium text-brand-800">Estimated total</span>
                 <motion.span key={r.cost} initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="text-2xl font-bold tracking-[-0.03em] text-brand-700 tabular-nums">{money(r.cost)}</motion.span>
               </div>
-              <Button className="mt-5 w-full" size="lg" disabled={r.boxes === 0 || p.stock <= 0} onClick={() => add(p, Math.min(p.stock, Math.ceil(r.sqm)))}>Add {Math.ceil(r.sqm)} {p.unit} to bag</Button>
+              <Button className="mt-5 w-full" size="lg" disabled={r.boxes === 0 || p.stock <= 0} onClick={() => { if (!HOME_ONLY) add(p, Math.min(p.stock, Math.ceil(r.sqm))); }}>Add {Math.ceil(r.sqm)} {p.unit} to bag</Button>
             </div>
           </Reveal>
         </div>

@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { NavLink as Link } from "@/components/ui/NavLink";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useState } from "react";
 import clsx from "clsx";
 import { useCart } from "./CartProvider";
+import { HOME_ONLY } from "@/lib/config";
 import { BagIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "@/components/ui/icons";
 
 const links = [
@@ -56,7 +57,7 @@ export function Navbar({ user }: { user: { name: string | null; admin: boolean }
           <div className="flex items-center gap-1">
             <Link href="/shop?focus=search" aria-label="Search tiles" className={clsx(icon, "hidden sm:grid")}><SearchIcon /></Link>
             <Link href={user ? (user.admin ? "/admin" : "/account") : "/login"} aria-label={user ? "Account" : "Sign in"} className={icon}><UserIcon /></Link>
-            <button onClick={() => setOpen(true)} aria-label={`Open bag, ${count} items`} className={clsx(icon, "relative")}>
+            <button onClick={() => { if (!HOME_ONLY) setOpen(true); }} aria-label={`Open bag, ${count} items`} className={clsx(icon, "relative")}>
               <BagIcon />
               <AnimatePresence>
                 {count > 0 && (

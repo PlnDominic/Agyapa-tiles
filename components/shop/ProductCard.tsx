@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink as Link } from "@/components/ui/NavLink";
 import { motion } from "motion/react";
 import { useState } from "react";
 import type { Product } from "@/lib/types";
 import { money } from "@/lib/format";
 import { Thumb } from "./Thumb";
 import { useCart } from "./CartProvider";
+import { HOME_ONLY } from "@/lib/config";
 import { CheckIcon, PlusIcon } from "@/components/ui/icons";
 
 export function ProductCard({ product: p, index = 0 }: { product: Product; index?: number }) {
@@ -37,7 +38,7 @@ export function ProductCard({ product: p, index = 0 }: { product: Product; index
         </div>
       </Link>
 
-      <button
+      {!HOME_ONLY && <button
         type="button"
         disabled={sold}
         aria-label={`Add ${p.name} to bag`}
@@ -47,7 +48,7 @@ export function ProductCard({ product: p, index = 0 }: { product: Product; index
         <motion.span key={String(added)} initial={{ scale: 0.4, rotate: -40 }} animate={{ scale: 1, rotate: 0 }} className="grid place-items-center">
           {added ? <CheckIcon /> : <PlusIcon />}
         </motion.span>
-      </button>
+      </button>}
       </div>
 
       <div className="px-1 pt-4">

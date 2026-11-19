@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink as Link } from "@/components/ui/NavLink";
 import { useRef } from "react";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { ArrowRight, ChevronRight } from "@/components/ui/icons";

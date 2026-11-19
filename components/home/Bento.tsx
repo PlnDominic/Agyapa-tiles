@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink as Link } from "@/components/ui/NavLink";
 import { motion } from "motion/react";
 import { TileArt } from "@/components/ui/TileArt";
 import { ArrowUpRight } from "@/components/ui/icons";
