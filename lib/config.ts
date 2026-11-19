@@ -20,6 +20,6 @@ export const HERO_BACKGROUND = "/brand/hero-bg.jpg";
 
 /**
  * Preview mode: while true, every link that leads away from the homepage is inert
- * (nav, buttons, cards, footer, bag). Set NEXT_PUBLIC_HOME_ONLY=false in the environment to go fully live.
+ * (nav, buttons, cards, footer, bag). Off by default; set NEXT_PUBLIC_HOME_ONLY=true in the environment to turn it on.
  */
-export const HOME_ONLY = process.env.NEXT_PUBLIC_HOME_ONLY !== "false";
+export const HOME_ONLY = process.env.NEXT_PUBLIC_HOME_ONLY === "true";
