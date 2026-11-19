@@ -48,17 +48,22 @@ export default async function AdminHome() {
           </ul>
         </Card>
         <Card>
-          <div className="mb-4 flex items-center justify-between"><h2 className="font-semibold tracking-tight">Low stock</h2><Link href="/admin/products" className="text-sm font-medium text-brand-600 hover:underline">Manage</Link></div>
+          <div className="mb-4 flex items-center justify-between"><h2 className="font-semibold tracking-tight">Low stock</h2><Link href="/admin/products?stock=low" className="text-sm font-medium text-brand-600 hover:underline">Manage</Link></div>
           <ul className="space-y-3">
-            {s.lowStock.length === 0 && <li className="text-sm text-steel-500">All products are well stocked.</li>}
+            {s.lowStock.length === 0 && <li className="text-sm text-steel-500">Nothing is running low (10 or fewer left).</li>}
             {s.lowStock.map((p) => (
               <li key={p.id} className="flex items-center gap-3">
                 <Thumb pattern={p.pattern_key} base={p.color_hex} accent={p.accent_hex} imageUrl={p.image_url} seed={p.slug} alt="" className="size-11 shrink-0" sizes="44px" />
                 <Link href={`/admin/products/${p.id}`} className="min-w-0 flex-1 truncate text-sm font-medium hover:text-brand-600">{p.name}</Link>
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${p.stock === 0 ? "bg-brand-100 text-brand-800" : "bg-amber-100 text-amber-800"}`}>{p.stock} {p.unit}</span>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-amber-800">{p.stock} left</span>
               </li>
             ))}
           </ul>
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-steel-200 pt-4 text-xs font-medium">
+            <Link href="/admin/products?stock=out" className="rounded-full bg-white px-3 py-1.5 text-brand-700 hover:bg-brand-50">{s.soldOutCount} sold out</Link>
+            <Link href="/admin/products?stock=hidden" className="rounded-full bg-white px-3 py-1.5 text-steel-700 hover:bg-steel-100">{s.hiddenCount} hidden</Link>
+            <Link href="/admin/products" className="rounded-full bg-white px-3 py-1.5 text-steel-700 hover:bg-steel-100">{s.productCount} products</Link>
+          </div>
         </Card>
       </div>
 

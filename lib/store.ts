@@ -51,10 +51,16 @@ export async function requireAdmin(): Promise<SessionUser> {
 /* ───────────────────────── Catalogue ───────────────────────── */
 
 export interface ProductQuery {
-  category?: string; q?: string; sort?: string; finish?: string; featured?: boolean; limit?: number; min?: number; max?: number;
+  category?: string; q?: string; sort?: string; finish?: string; size?: string; featured?: boolean;
+  inStock?: boolean; tilesOnly?: boolean; min?: number; max?: number; limit?: number;
 }
+export const PAGE_SIZE = 24;
 
 const PRODUCT_SELECT = "*, category:categories(id, slug, name)";
+const PRODUCT_SELECT_INNER = "*, category:categories!inner(id, slug, name)";
+
+/** "60x60" / "60*60" / "60 X 60" all become "60 × 60", matching how sizes are written in product names. */
+const normalizeQuery = (q: string) => q.trim().replace(/(\d)\s*[x×*]\s*(\d)/gi, "$1 × $2");
 
 function sortProducts(list: Product[], sort?: string) {
   const s = [...list];
@@ -62,7 +68,47 @@ function sortProducts(list: Product[], sort?: string) {
     case "price-asc": return s.sort((a, b) => a.price - b.price);
     case "price-desc": return s.sort((a, b) => b.price - a.price);
     case "newest": return s.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
-    default: return s.sort((a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name));
+    default: // featured first, then what's in stock, then A–Z
+      return s.sort((a, b) => Number(b.featured) - Number(a.featured) || Number(b.stock > 0) - Number(a.stock > 0) || a.name.localeCompare(b.name));
+  }
+}
+
+function filterDemo(list: Product[], query: ProductQuery) {
+  let out = list;
+  if (query.category) out = out.filter((p) => p.category?.slug === query.category);
+  if (query.finish) out = out.filter((p) => p.finish?.toLowerCase() === query.finish!.toLowerCase());
+  if (query.size) out = out.filter((p) => p.size === query.size);
+  if (query.featured) out = out.filter((p) => p.featured);
+  if (query.inStock) out = out.filter((p) => p.stock > 0);
+  if (query.tilesOnly) out = out.filter((p) => p.coverage_per_box > 0);
+  if (query.min != null) out = out.filter((p) => p.price >= query.min!);
+  if (query.max != null) out = out.filter((p) => p.price <= query.max!);
+  if (query.q) {
+    const n = normalizeQuery(query.q).toLowerCase();
+    out = out.filter((p) => [p.name, p.sku, p.description, p.finish, p.size, p.category?.name].join(" ").toLowerCase().includes(n));
+  }
+  return out;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyDb(req: any, query: ProductQuery) {
+  if (query.category) req = req.eq("category.slug", query.category);
+  if (query.featured) req = req.eq("featured", true);
+  if (query.finish) req = req.ilike("finish", query.finish);
+  if (query.size) req = req.eq("size", query.size);
+  if (query.inStock) req = req.gt("stock", 0);
+  if (query.tilesOnly) req = req.gt("coverage_per_box", 0);
+  if (query.min != null) req = req.gte("price", query.min);
+  if (query.max != null) req = req.lte("price", query.max);
+  if (query.q) {
+    const safe = normalizeQuery(query.q).replace(/[%,()]/g, " ");
+    req = req.or(`name.ilike.%${safe}%,sku.ilike.%${safe}%,description.ilike.%${safe}%`);
+  }
+  switch (query.sort) {
+    case "price-asc": return req.order("price");
+    case "price-desc": return req.order("price", { ascending: false });
+    case "newest": return req.order("created_at", { ascending: false });
+    default: return req.order("featured", { ascending: false }).order("stock", { ascending: false }).order("name");
   }
 }
 
@@ -73,36 +119,42 @@ export async function getCategories(): Promise<Category[]> {
   return (data ?? []) as Category[];
 }
 
-export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
+/** One page of the shop listing, plus the total number of matches. */
+export async function getProductsPage(query: ProductQuery, page = 1, pageSize = PAGE_SIZE): Promise<{ items: Product[]; total: number }> {
+  const from = (Math.max(1, page) - 1) * pageSize;
   if (isDemo) {
-    let list = demo().products.filter((p) => p.active);
-    if (query.category) list = list.filter((p) => p.category?.slug === query.category);
-    if (query.finish) list = list.filter((p) => p.finish?.toLowerCase() === query.finish!.toLowerCase());
-    if (query.featured) list = list.filter((p) => p.featured);
-    if (query.min != null) list = list.filter((p) => p.price >= query.min!);
-    if (query.max != null) list = list.filter((p) => p.price <= query.max!);
-    if (query.q) {
-      const n = query.q.toLowerCase();
-      list = list.filter((p) => [p.name, p.description, p.material, p.finish, p.category?.name].join(" ").toLowerCase().includes(n));
-    }
-    list = sortProducts(list, query.sort);
-    return query.limit ? list.slice(0, query.limit) : list;
+    const list = sortProducts(filterDemo(demo().products.filter((p) => p.active), query), query.sort);
+    return { items: list.slice(from, from + pageSize), total: list.length };
   }
   const sb = await createClient();
-  let req = sb.from("products").select(PRODUCT_SELECT).eq("active", true);
-  if (query.featured) req = req.eq("featured", true);
-  if (query.finish) req = req.ilike("finish", query.finish);
-  if (query.min != null) req = req.gte("price", query.min);
-  if (query.max != null) req = req.lte("price", query.max);
-  if (query.q) {
-    const safe = query.q.replace(/[%,()]/g, " ");
-    req = req.or(`name.ilike.%${safe}%,description.ilike.%${safe}%,material.ilike.%${safe}%`);
-  }
-  const { data } = await req;
-  let list = (data ?? []) as Product[];
-  if (query.category) list = list.filter((p) => p.category?.slug === query.category);
-  list = sortProducts(list, query.sort);
-  return query.limit ? list.slice(0, query.limit) : list;
+  const req = sb.from("products").select(query.category ? PRODUCT_SELECT_INNER : PRODUCT_SELECT, { count: "exact" }).eq("active", true);
+  const { data, count } = await applyDb(req, query).range(from, from + pageSize - 1);
+  return { items: (data ?? []) as unknown as Product[], total: count ?? 0 };
+}
+
+/** A short list (home page, related items, calculator). Always bounded. */
+export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
+  const limit = Math.min(query.limit ?? 100, 500);
+  if (isDemo) return sortProducts(filterDemo(demo().products.filter((p) => p.active), query), query.sort).slice(0, limit);
+  const sb = await createClient();
+  const req = sb.from("products").select(query.category ? PRODUCT_SELECT_INNER : PRODUCT_SELECT).eq("active", true);
+  const { data } = await applyDb(req, query).limit(limit);
+  return (data ?? []) as unknown as Product[];
+}
+
+export async function countProducts(): Promise<number> {
+  if (isDemo) return demo().products.filter((p) => p.active).length;
+  const sb = await createClient();
+  const { count } = await sb.from("products").select("id", { count: "exact", head: true }).eq("active", true);
+  return count ?? 0;
+}
+
+/** One representative product per category (used to colour the homepage collection cards). */
+export async function getCategorySamples(): Promise<Record<string, Product>> {
+  const list = await getProducts({ limit: 500, inStock: true });
+  const out: Record<string, Product> = {};
+  for (const p of list) if (p.category_id && !out[p.category_id]) out[p.category_id] = p;
+  return out;
 }
 
 export async function getProduct(slug: string): Promise<Product | null> {
@@ -113,11 +165,19 @@ export async function getProduct(slug: string): Promise<Product | null> {
 }
 
 export async function getRelated(product: Product, limit = 4): Promise<Product[]> {
-  const all = await getProducts({ category: product.category?.slug });
-  const same = all.filter((p) => p.id !== product.id);
+  const same = (await getProducts({ category: product.category?.slug, inStock: true, limit: limit + 1 })).filter((p) => p.id !== product.id);
   if (same.length >= limit) return same.slice(0, limit);
-  const rest = (await getProducts({ limit: 12 })).filter((p) => p.id !== product.id && !same.some((s) => s.id === p.id));
+  const rest = (await getProducts({ inStock: true, limit: 12 })).filter((p) => p.id !== product.id && !same.some((s) => s.id === p.id));
   return [...same, ...rest].slice(0, limit);
+}
+
+/** Sizes that exist in the catalogue (for the shop filter). */
+export async function getSizes(): Promise<string[]> {
+  const base = isDemo ? demo().products.filter((p) => p.active && p.coverage_per_box > 0).map((p) => p.size) : null;
+  if (base) return [...new Set(base.filter(Boolean) as string[])].sort();
+  const sb = await createClient();
+  const { data } = await sb.from("products").select("size").eq("active", true).gt("coverage_per_box", 0).not("size", "is", null).limit(1000);
+  return [...new Set((data ?? []).map((r) => r.size as string))].sort();
 }
 
 /* ───────────────────────── Orders (customer) ───────────────────────── */
@@ -205,12 +265,30 @@ export async function adminUpdateOrder(id: string, status: OrderStatus, message:
   if (error) throw new Error(error.message);
 }
 
-export async function adminListProducts(): Promise<Product[]> {
+export interface AdminProductQuery { q?: string; category?: string; stock?: "out" | "low" | "hidden"; page?: number; pageSize?: number }
+
+export async function adminListProducts(opts: AdminProductQuery = {}): Promise<{ items: Product[]; total: number }> {
   await requireAdmin();
-  if (isDemo) return [...demo().products].sort((a, b) => a.name.localeCompare(b.name));
+  const pageSize = opts.pageSize ?? 40, from = (Math.max(1, opts.page ?? 1) - 1) * pageSize;
+  if (isDemo) {
+    let list = demo().products;
+    if (opts.category) list = list.filter((p) => p.category?.slug === opts.category);
+    if (opts.stock === "out") list = list.filter((p) => p.active && p.stock === 0);
+    if (opts.stock === "low") list = list.filter((p) => p.active && p.stock > 0 && p.stock <= 10);
+    if (opts.stock === "hidden") list = list.filter((p) => !p.active);
+    if (opts.q) { const n = normalizeQuery(opts.q).toLowerCase(); list = list.filter((p) => `${p.name} ${p.sku}`.toLowerCase().includes(n)); }
+    list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+    return { items: list.slice(from, from + pageSize), total: list.length };
+  }
   const sb = await createClient();
-  const { data } = await sb.from("products").select(PRODUCT_SELECT).order("name");
-  return (data ?? []) as Product[];
+  let req = sb.from("products").select(opts.category ? PRODUCT_SELECT_INNER : PRODUCT_SELECT, { count: "exact" });
+  if (opts.category) req = req.eq("category.slug", opts.category);
+  if (opts.stock === "out") req = req.eq("active", true).eq("stock", 0);
+  if (opts.stock === "low") req = req.eq("active", true).gt("stock", 0).lte("stock", 10);
+  if (opts.stock === "hidden") req = req.eq("active", false);
+  if (opts.q) { const safe = normalizeQuery(opts.q).replace(/[%,()]/g, " "); req = req.or(`name.ilike.%${safe}%,sku.ilike.%${safe}%`); }
+  const { data, count } = await req.order("name").range(from, from + pageSize - 1);
+  return { items: (data ?? []) as unknown as Product[], total: count ?? 0 };
 }
 
 export async function adminGetProduct(id: string): Promise<Product | null> {
@@ -295,7 +373,10 @@ export async function adminStats() {
   }
   const byStatus: Record<string, number> = {};
   orders.forEach((o) => { byStatus[o.order.status] = (byStatus[o.order.status] ?? 0) + 1; });
-  const products = await adminListProducts();
+  const [low, out, hidden, total] = await Promise.all([
+    adminListProducts({ stock: "low", pageSize: 6 }), adminListProducts({ stock: "out", pageSize: 1 }),
+    adminListProducts({ stock: "hidden", pageSize: 1 }), adminListProducts({ pageSize: 1 }),
+  ]);
   return {
     revenue,
     orderCount: orders.length,
@@ -305,7 +386,8 @@ export async function adminStats() {
     days,
     topProducts: [...sold.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 5),
     byStatus,
-    lowStock: products.filter((p) => p.active && p.stock <= 200).sort((a, b) => a.stock - b.stock).slice(0, 6),
+    lowStock: [...low.items].sort((a, b) => a.stock - b.stock),
+    soldOutCount: out.total, hiddenCount: hidden.total, productCount: total.total,
     recent: orders.slice(0, 6),
   };
 }
@@ -339,8 +421,18 @@ export type CategoryInput = Pick<Category, "slug" | "name" | "description" | "pa
 
 export async function adminListCategories(): Promise<(Category & { productCount: number })[]> {
   await requireAdmin();
-  const [cats, products] = await Promise.all([getCategories(), adminListProducts()]);
-  return cats.map((c) => ({ ...c, productCount: products.filter((p) => p.category_id === c.id).length }));
+  const cats = await getCategories();
+  const counts = new Map<string, number>();
+  if (isDemo) demo().products.forEach((p) => p.category_id && counts.set(p.category_id, (counts.get(p.category_id) ?? 0) + 1));
+  else {
+    const sb = await createClient();
+    for (let from = 0; ; from += 1000) { // PostgREST returns at most 1000 rows per request
+      const { data } = await sb.from("products").select("category_id").range(from, from + 999);
+      (data ?? []).forEach((r) => r.category_id && counts.set(r.category_id, (counts.get(r.category_id) ?? 0) + 1));
+      if (!data || data.length < 1000) break;
+    }
+  }
+  return cats.map((c) => ({ ...c, productCount: counts.get(c.id) ?? 0 }));
 }
 
 export async function adminGetCategory(id: string): Promise<Category | null> {
@@ -378,4 +470,23 @@ export async function adminDeleteCategory(id: string) {
   const sb = await createClient();
   const { error } = await sb.from("categories").delete().eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+/** Attach photos to products by product code (SKU). Returns how many matched and which codes did not. */
+export async function adminAttachImages(entries: { sku: string; url: string }[]): Promise<{ matched: number; unmatched: string[] }> {
+  await requireAdmin();
+  let matched = 0; const unmatched: string[] = [];
+  for (const { sku, url } of entries) {
+    const code = sku.trim().toUpperCase();
+    if (isDemo) {
+      const p = demo().products.find((x) => (x.sku ?? "").toUpperCase() === code);
+      if (p) { p.image_url = url; matched++; } else unmatched.push(sku);
+      continue;
+    }
+    const sb = await createClient();
+    const { data, error } = await sb.from("products").update({ image_url: url }).eq("sku", code).select("id");
+    if (error) throw new Error(error.message);
+    if (data && data.length) matched += data.length; else unmatched.push(sku);
+  }
+  return { matched, unmatched };
 }

@@ -1,6 +1,6 @@
 import type { OrderDetail } from "@/lib/types";
 import { PAYMENT_LABEL } from "@/lib/types";
-import { money } from "@/lib/format";
+import { money, unitLabel } from "@/lib/format";
 import { Thumb } from "./Thumb";
 
 export function OrderSummary({ detail }: { detail: OrderDetail }) {
@@ -12,7 +12,7 @@ export function OrderSummary({ detail }: { detail: OrderDetail }) {
         {items.map((it) => (
           <li key={it.id} className="flex items-center gap-4 py-3">
             <Thumb pattern={it.pattern_key ?? "marble"} base={it.color_hex ?? "#eee"} accent={it.accent_hex ?? "#999"} seed={it.name} alt={it.name} className="size-16 shrink-0" sizes="64px" />
-            <div className="min-w-0 flex-1"><p className="truncate font-medium">{it.name}</p><p className="text-sm text-steel-500">{it.quantity} {it.unit} × {money(it.unit_price)}</p></div>
+            <div className="min-w-0 flex-1"><p className="truncate font-medium">{it.name}</p><p className="text-sm text-steel-500">{it.quantity} {unitLabel(it.unit, it.quantity)} × {money(it.unit_price)}</p></div>
             <p className="font-semibold tabular-nums">{money(it.quantity * it.unit_price)}</p>
           </li>
         ))}

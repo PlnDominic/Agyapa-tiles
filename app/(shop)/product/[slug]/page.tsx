@@ -21,7 +21,7 @@ export default async function ProductPage({ params }: Props) {
   const p = await getProduct(slug);
   if (!p) notFound();
   const related = await getRelated(p);
-  const specs = [["Size", p.size], ["Finish", p.finish], ["Material", p.material], ["Coverage per box", `${p.coverage_per_box} m²`], ["SKU", p.sku], ["Availability", p.stock > 0 ? (p.stock <= 100 ? `Low stock (${p.stock} ${p.unit})` : "In stock") : "Sold out"]].filter(([, v]) => v);
+  const specs = [["Size", p.size], ["Finish", p.finish], ["Material", p.material], [p.unit === "carton" ? "Approx. coverage per carton" : "Coverage per box", p.coverage_per_box > 0 ? `≈ ${p.coverage_per_box} m²` : null], ["Sold per", p.unit], ["Product code", p.sku], ["Availability", p.stock > 0 ? (p.stock <= 10 ? `Low stock (${p.stock} left)` : "In stock") : "Sold out"]].filter(([, v]) => v);
   const off = p.compare_at_price && p.compare_at_price > p.price;
 
   return (

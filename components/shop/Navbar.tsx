@@ -12,9 +12,9 @@ import { BagIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "@/components
 
 const links = [
   { href: "/shop", label: "Shop" },
-  { href: "/shop?category=marble-look", label: "Marble" },
-  { href: "/shop?category=wood-look", label: "Wood" },
-  { href: "/shop?category=outdoor", label: "Outdoor" },
+  { href: "/shop?category=polished-tiles", label: "Polished" },
+  { href: "/shop?category=rustic-tiles", label: "Rustic" },
+  { href: "/shop?category=wall-tiles", label: "Wall Tiles" },
   { href: "/track", label: "Track order" },
 ];
 

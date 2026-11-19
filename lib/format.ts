@@ -17,3 +17,9 @@ export const dateTime = (iso: string) =>
 export const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
+
+/** "carton" -> "cartons" (not for sqm). Used with a quantity. */
+export const unitLabel = (unit: string | null | undefined, qty: number) => {
+  const u = unit || "piece";
+  return u === "sqm" || qty === 1 ? u : `${u}s`;
+};

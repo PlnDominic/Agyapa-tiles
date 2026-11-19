@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { adminDeleteCategory, adminDeleteProduct, adminSaveCategory, adminSaveProduct, adminSaveSettings, adminUpdateOrder, requireAdmin, type ProductInput } from "@/lib/store";
+import { adminAttachImages, adminDeleteCategory, adminDeleteProduct, adminSaveCategory, adminSaveProduct, adminSaveSettings, adminUpdateOrder, requireAdmin, type ProductInput } from "@/lib/store";
 import { slugify } from "@/lib/format";
 import { PATTERNS } from "@/lib/types";
 
@@ -43,7 +43,7 @@ const productSchema = z.object({
   size: z.string().trim().max(60).optional(),
   finish: z.string().trim().max(60).optional(),
   material: z.string().trim().max(60).optional(),
-  coverage_per_box: z.coerce.number().min(0.01).max(100),
+  coverage_per_box: z.coerce.number().min(0).max(100),
   pattern_key: z.enum(PATTERNS as [string, ...string[]]),
   color_hex: hex,
   accent_hex: hex,
@@ -139,4 +139,19 @@ export async function saveSettingsAction(_: ActionState, fd: FormData): Promise<
   }
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+const photoSchema = z.array(z.object({ sku: z.string().trim().min(1).max(80), url: z.string().url().max(500) })).min(1).max(200);
+
+export async function attachPhotosAction(entries: { sku: string; url: string }[]): Promise<{ matched: number; unmatched: string[]; error?: string }> {
+  await requireAdmin();
+  const parsed = photoSchema.safeParse(entries);
+  if (!parsed.success) return { matched: 0, unmatched: [], error: "Invalid photo list" };
+  try {
+    const r = await adminAttachImages(parsed.data);
+    revalidatePath("/", "layout");
+    return r;
+  } catch (e) {
+    return { matched: 0, unmatched: [], error: e instanceof Error ? e.message : "Could not attach photos" };
+  }
 }

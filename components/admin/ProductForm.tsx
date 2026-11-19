@@ -51,7 +51,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             <div><label className="label" htmlFor="price">Price (GH₵)</label><input id="price" name="price" type="number" step="0.01" min="0" required defaultValue={product?.price} className="field bg-white" /></div>
             <div><label className="label" htmlFor="compare_at_price">Was price</label><input id="compare_at_price" name="compare_at_price" type="number" step="0.01" min="0" defaultValue={product?.compare_at_price ?? ""} className="field bg-white" /></div>
             <div><label className="label" htmlFor="stock">Stock</label><input id="stock" name="stock" type="number" min="0" required defaultValue={product?.stock ?? 0} className="field bg-white" /></div>
-            <div><label className="label" htmlFor="unit">Unit</label><input id="unit" name="unit" required defaultValue={product?.unit ?? "sqm"} className="field bg-white" /></div>
+            <div><label className="label" htmlFor="unit">Unit</label><input id="unit" name="unit" required defaultValue={product?.unit ?? "carton"} className="field bg-white" /></div>
           </div>
         </section>
 
@@ -61,7 +61,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             <div><label className="label" htmlFor="size">Size</label><input id="size" name="size" placeholder="60 × 120 cm" defaultValue={product?.size ?? ""} className="field bg-white" /></div>
             <div><label className="label" htmlFor="finish">Finish</label><input id="finish" name="finish" placeholder="Polished" defaultValue={product?.finish ?? ""} className="field bg-white" /></div>
             <div><label className="label" htmlFor="material">Material</label><input id="material" name="material" placeholder="Porcelain" defaultValue={product?.material ?? ""} className="field bg-white" /></div>
-            <div><label className="label" htmlFor="coverage_per_box">Coverage per box (m²)</label><input id="coverage_per_box" name="coverage_per_box" type="number" step="0.01" min="0.01" required defaultValue={product?.coverage_per_box ?? 1.44} className="field bg-white" /></div>
+            <div><label className="label" htmlFor="coverage_per_box">Coverage per carton (m², 0 if not a tile)</label><input id="coverage_per_box" name="coverage_per_box" type="number" step="0.01" min="0" required defaultValue={product?.coverage_per_box ?? 1.44} className="field bg-white" /></div>
           </div>
         </section>
 

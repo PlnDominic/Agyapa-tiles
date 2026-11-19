@@ -203,6 +203,66 @@ export function TileArt({ pattern, base, accent, seed = 1, className, grout = fa
       }
       break;
     }
+    case "door":
+    case "sanitary":
+    case "basin":
+    case "tap":
+    case "mirror":
+    case "paint":
+    case "hardware":
+    case "accessory": {
+      const ink = accent, soft = shade(base, -0.06), edge = shade(accent, -0.15), hi = shade(base, 0.6);
+      defs = (
+        <radialGradient id={`${uid}g`} cx="50%" cy="38%" r="80%">
+          <stop offset="0" stopColor="#fff" stopOpacity=".9" />
+          <stop offset="1" stopColor={shade(base, -0.1)} stopOpacity=".55" />
+        </radialGradient>
+      );
+      els.push(<rect key="bg" width="200" height="200" fill={base} />, <rect key="gl" width="200" height="200" fill={`url(#${uid}g)`} />);
+      const g: React.ReactNode[] = [];
+      if (pattern === "door") {
+        g.push(<rect key="a" x="62" y="26" width="76" height="150" rx="3" fill={soft} stroke={ink} strokeWidth="3" />,
+          <rect key="b" x="72" y="38" width="56" height="50" rx="2" fill="none" stroke={edge} strokeWidth="2" />,
+          <rect key="c" x="72" y="98" width="56" height="66" rx="2" fill="none" stroke={edge} strokeWidth="2" />,
+          <circle key="d" cx="124" cy="104" r="4.5" fill={ink} />);
+      } else if (pattern === "sanitary") {
+        g.push(<rect key="a" x="68" y="34" width="64" height="42" rx="8" fill={hi} stroke={ink} strokeWidth="3" />,
+          <path key="b" d="M56 92h88c0 26-16 44-44 44S56 118 56 92Z" fill={hi} stroke={ink} strokeWidth="3" />,
+          <ellipse key="c" cx="100" cy="92" rx="44" ry="9" fill={soft} stroke={ink} strokeWidth="3" />,
+          <path key="d" d="M86 136h28l6 26H80Z" fill={hi} stroke={ink} strokeWidth="3" strokeLinejoin="round" />,
+          <circle key="e" cx="100" cy="44" r="4" fill={ink} />);
+      } else if (pattern === "basin") {
+        g.push(<path key="a" d="M54 70h92c0 30-18 48-46 48S54 100 54 70Z" fill={hi} stroke={ink} strokeWidth="3.5" strokeLinejoin="round" />,
+          <ellipse key="b" cx="100" cy="70" rx="46" ry="9" fill={soft} stroke={ink} strokeWidth="3.5" />,
+          <path key="c" d="M86 116h28l8 50H78Z" fill={hi} stroke={ink} strokeWidth="3.5" strokeLinejoin="round" />,
+          <path key="d" d="M70 168h60" stroke={ink} strokeWidth="4" strokeLinecap="round" />,
+          <path key="e" d="M100 70V44h14" fill="none" stroke={ink} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />);
+      } else if (pattern === "tap") {
+        g.push(<path key="a" d="M100 150V92q0-26 28-26h24" fill="none" stroke={ink} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />,
+          <rect key="b" x="82" y="146" width="36" height="14" rx="4" fill={ink} />,
+          <path key="c" d="M100 100h-30" stroke={ink} strokeWidth="9" strokeLinecap="round" />,
+          <path key="d" d="M152 74v14" stroke={edge} strokeWidth="4" strokeLinecap="round" />,
+          <path key="e" d="M60 168c10-12 30-12 40 0s30 12 40 0" fill="none" stroke={edge} strokeWidth="3" opacity=".5" />);
+      } else if (pattern === "mirror") {
+        g.push(<rect key="a" x="46" y="26" width="108" height="148" rx="12" fill={hi} stroke={ink} strokeWidth="7" />,
+          <path key="b" d="M70 150 118 44h18L88 150Z" fill="#fff" opacity=".7" />,
+          <path key="c" d="M104 150 134 84h8l-30 66Z" fill="#fff" opacity=".5" />);
+      } else if (pattern === "paint") {
+        g.push(<path key="a" d="M64 74c0-12 72-12 72 0v82c0 12-72 12-72 0Z" fill={hi} stroke={ink} strokeWidth="3" />,
+          <rect key="b" x="64" y="96" width="72" height="34" fill={ink} opacity=".9" />,
+          <ellipse key="c" cx="100" cy="74" rx="36" ry="9" fill={soft} stroke={ink} strokeWidth="3" />,
+          <path key="d" d="M64 78c-4-30 72-30 72 0" fill="none" stroke={edge} strokeWidth="3" />);
+      } else if (pattern === "hardware") {
+        g.push(<path key="a" d="M78 96V76a22 22 0 0 1 44 0v20" fill="none" stroke={ink} strokeWidth="9" strokeLinecap="round" />,
+          <rect key="b" x="62" y="92" width="76" height="62" rx="11" fill={hi} stroke={ink} strokeWidth="4" />,
+          <circle key="c" cx="100" cy="120" r="7" fill={ink} />, <path key="d" d="M100 124v14" stroke={ink} strokeWidth="5" strokeLinecap="round" />);
+      } else {
+        for (const [x, y, sz] of [[70, 76, 22], [128, 70, 18], [96, 130, 26], [140, 128, 16]] as const)
+          g.push(<path key={`${x}${y}`} d={`M${x - sz} ${y}h${sz * 2}M${x} ${y - sz}v${sz * 2}`} stroke={ink} strokeWidth="7" strokeLinecap="round" />);
+      }
+      els.push(<g key="glyph" transform="translate(0 4)">{g}</g>);
+      break;
+    }
     case "zellige":
     default: {
       defs = (

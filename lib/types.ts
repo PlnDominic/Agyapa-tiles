@@ -1,9 +1,12 @@
 export type PatternKey =
   | "marble" | "terrazzo" | "wood" | "geometric" | "hex" | "subway"
-  | "slate" | "cement" | "herringbone" | "zellige";
+  | "slate" | "cement" | "herringbone" | "zellige"
+  /* simple product glyphs for non-tile items (until real photos are uploaded) */
+  | "door" | "sanitary" | "basin" | "tap" | "mirror" | "paint" | "hardware" | "accessory";
 
 export const PATTERNS: PatternKey[] = [
   "marble", "terrazzo", "wood", "geometric", "hex", "subway", "slate", "cement", "herringbone", "zellige",
+  "door", "sanitary", "basin", "tap", "mirror", "paint", "hardware", "accessory",
 ];
 
 export interface Category {

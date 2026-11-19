@@ -7,9 +7,9 @@ import type { Category } from "@/lib/types";
 import { SearchIcon } from "@/components/ui/icons";
 
 const sorts = [["featured", "Featured"], ["newest", "Newest"], ["price-asc", "Price: low to high"], ["price-desc", "Price: high to low"]];
-const finishes = ["Polished", "Matt", "Satin", "Glossy", "Textured", "Anti-slip"];
+const finishes = ["Polished", "Rustic", "Anti-slip"];
 
-export function ShopToolbar({ categories }: { categories: Category[] }) {
+export function ShopToolbar({ categories, sizes }: { categories: Category[]; sizes: string[] }) {
   const router = useRouter();
   const sp = useSearchParams();
   const [pending, start] = useTransition();
@@ -17,12 +17,14 @@ export function ShopToolbar({ categories }: { categories: Category[] }) {
   const input = useRef<HTMLInputElement>(null);
   const category = sp.get("category") ?? "";
   const finish = sp.get("finish") ?? "";
+  const size = sp.get("size") ?? "";
 
   useEffect(() => { if (sp.get("focus") === "search") input.current?.focus(); }, [sp]);
 
   const set = (patch: Record<string, string>) => {
     const next = new URLSearchParams(sp.toString());
     next.delete("focus");
+    next.delete("page");
     Object.entries(patch).forEach(([k, v]) => (v ? next.set(k, v) : next.delete(k)));
     start(() => router.replace(`/shop${next.toString() ? `?${next}` : ""}`, { scroll: false }));
   };
@@ -46,8 +48,11 @@ export function ShopToolbar({ categories }: { categories: Category[] }) {
           <label className="relative min-w-0 basis-full sm:basis-0 sm:flex-1">
             <span className="sr-only">Search tiles</span>
             <SearchIcon width={16} height={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-steel-400" />
-            <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search tiles" className="h-10 w-full rounded-full bg-steel-50 pl-10 pr-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-600/30" />
+            <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, code or size (e.g. 60x60)" className="h-10 w-full rounded-full bg-steel-50 pl-10 pr-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-600/30" />
           </label>
+          {sizes.length > 0 && <select aria-label="Size" value={size} onChange={(e) => set({ size: e.target.value })} className="h-10 min-w-0 flex-1 rounded-full bg-steel-50 px-4 text-sm outline-none focus:ring-2 focus:ring-brand-600/30 sm:w-auto sm:flex-none">
+            <option value="">All sizes</option>{sizes.map((z) => <option key={z} value={z}>{z}</option>)}
+          </select>}
           <select aria-label="Finish" value={finish} onChange={(e) => set({ finish: e.target.value })} className="h-10 min-w-0 flex-1 rounded-full bg-steel-50 px-4 text-sm outline-none focus:ring-2 focus:ring-brand-600/30 sm:w-auto sm:flex-none">
             <option value="">All finishes</option>{finishes.map((f) => <option key={f}>{f}</option>)}
           </select>

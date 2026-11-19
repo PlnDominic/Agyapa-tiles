@@ -4,7 +4,7 @@ import { telHref, type Settings } from "@/lib/settings";
 import { MapPinIcon, PhoneIcon } from "@/components/ui/icons";
 
 const cols = [
-  { title: "Shop", links: [["All tiles", "/shop"], ["Marble look", "/shop?category=marble-look"], ["Wood look", "/shop?category=wood-look"], ["Terrazzo", "/shop?category=terrazzo"], ["Outdoor", "/shop?category=outdoor"]] },
+  { title: "Shop", links: [["All products", "/shop"], ["Polished tiles", "/shop?category=polished-tiles"], ["Rustic tiles", "/shop?category=rustic-tiles"], ["Wall tiles", "/shop?category=wall-tiles"], ["Toilets & basins", "/shop?category=toilets-basins"], ["Doors", "/shop?category=doors"]] },
   { title: "Support", links: [["Track your order", "/track"], ["Delivery & returns", "/#delivery"], ["Tile calculator", "/#calculator"], ["Contact us", "/#contact"]] },
   { title: "Account", links: [["Sign in", "/login"], ["My orders", "/account"], ["Your bag", "/cart"]] },
 ];

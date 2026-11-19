@@ -29,7 +29,7 @@ Without Supabase keys the storefront shows a built-in sample catalogue so the si
 ## Go live with Supabase
 
 1. Create a Supabase project dedicated to Agyapa Tiles.
-2. Paste `supabase/setup.sql` (schema + sample products in one go) into the SQL Editor and run it. Or use `supabase db push` with the files in `supabase/migrations/` and then `supabase/seed.sql`.
+2. In the SQL Editor run `supabase/setup.sql` (schema, security, functions, settings), then `supabase/seed.sql` (the 1,050-product inventory in 11 categories). Both are safe to re-run; the seed never overwrites products you have already edited.
 3. Copy `.env.example` → `.env.local` and fill in the URL and anon/publishable key.
 4. In **Authentication → Providers → Email**, decide whether to require email confirmation.
 5. Sign up on `/login`, then promote yourself:
@@ -55,6 +55,12 @@ app/api/orders      checkout endpoint     proxy.ts        session refresh + rout
 lib/store.ts        data layer (Supabase or demo)           lib/demo-data.ts  seed catalogue
 components/ui       TileArt, motion primitives, buttons     supabase/         schema + seed
 ```
+
+## Catalogue & photos
+
+- The catalogue comes from the company inventory sheet: `python3 scripts/build-inventory.py AGYAPA.xlsx` regenerates `lib/inventory.json` (storefront fallback) and `supabase/seed.sql`. Tiles are priced **per carton**, everything else per piece. Carton coverage (m²) is an approximation inferred from tile size; check it in the admin.
+- Until real photos exist, each product shows a generated preview (tile surface or a simple icon for non-tiles).
+- **Photos:** Admin → Products → *Upload photos*. Name each file after the product code (e.g. `FGC66205G.jpg`) and drop in as many as you like; they attach automatically and replace the preview.
 
 ## Next steps worth doing
 

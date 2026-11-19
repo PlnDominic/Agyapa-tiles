@@ -1,4 +1,4 @@
-import { getCategories, getProducts, getSettings } from "@/lib/store";
+import { countProducts, getCategories, getCategorySamples, getProducts, getSettings } from "@/lib/store";
 import { Hero } from "@/components/home/Hero";
 import { Marquee } from "@/components/home/Marquee";
 import { Story } from "@/components/home/Story";
@@ -10,21 +10,24 @@ import { TrackingPreview } from "@/components/home/TrackingPreview";
 import { FinalCTA } from "@/components/home/FinalCTA";
 
 export default async function Home() {
-  const [categories, all, settings] = await Promise.all([getCategories(), getProducts(), getSettings()]);
-  const featured = all.filter((p) => p.featured);
-  const hero = featured.length >= 6 ? featured : all;
+  const [categories, featuredList, tiles, samples, total, settings] = await Promise.all([
+    getCategories(), getProducts({ featured: true, inStock: true, limit: 12 }), getProducts({ tilesOnly: true, inStock: true, sort: "price-asc", limit: 400 }),
+    getCategorySamples(), countProducts(), getSettings(),
+  ]);
+  const featured = featuredList.length ? featuredList : tiles.slice(0, 8);
+  const hero = featured;
   return (
     <>
       <Hero />
       <Marquee />
-      <FeaturedCarousel products={(featured.length ? featured : all).slice(0, 8)} />
+      <FeaturedCarousel products={featured.slice(0, 8)} />
       <Story products={hero} />
-      <Bento categories={categories} products={all} />
-      <Calculator products={all.slice(0, 12)} />
+      <Bento categories={categories} samples={samples} />
+      <Calculator products={tiles} />
       <TrackingPreview />
       <Stats stats={[
-        { value: all.length, label: "Finishes in the collection" },
-        { value: categories.length, label: "Curated categories" },
+        { value: total, label: "Products in the catalogue" },
+        { value: categories.length, label: "Collections to browse" },
         { value: settings.free_delivery_threshold, prefix: "GH₵ ", label: "Free delivery from" },
         { value: 6, label: "Tracking milestones per order" },
       ]} />

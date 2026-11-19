@@ -14,7 +14,7 @@ export function ProductCard({ product: p, index = 0 }: { product: Product; index
   const { add } = useCart();
   const [added, setAdded] = useState(false);
   const sold = p.stock <= 0;
-  const low = !sold && p.stock <= 100;
+  const low = !sold && p.stock <= 10;
   const off = p.compare_at_price && p.compare_at_price > p.price ? Math.round((1 - p.price / p.compare_at_price) * 100) : 0;
 
   return (

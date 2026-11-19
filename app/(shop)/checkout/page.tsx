@@ -8,7 +8,7 @@ import { useCart } from "@/components/shop/CartProvider";
 import { Thumb } from "@/components/shop/Thumb";
 import { Button, btn } from "@/components/ui/Button";
 import { LockIcon } from "@/components/ui/icons";
-import { money } from "@/lib/format";
+import { money, unitLabel } from "@/lib/format";
 import { PAYMENT_LABEL, type PaymentMethod } from "@/lib/types";
 
 const regions = ["Greater Accra", "Ashanti", "Western", "Central", "Eastern", "Volta", "Northern", "Upper East", "Upper West", "Bono", "Bono East", "Ahafo", "Oti", "Savannah", "North East", "Western North"];
@@ -103,7 +103,7 @@ export default function CheckoutPage() {
             {lines.map((l) => (
               <li key={l.productId} className="flex items-center gap-3">
                 <Thumb pattern={l.pattern} base={l.base} accent={l.accent} imageUrl={l.imageUrl} seed={l.slug} alt={l.name} className="size-14 shrink-0" sizes="56px" />
-                <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{l.name}</p><p className="text-xs text-steel-500">{l.qty} {l.unit}</p></div>
+                <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{l.name}</p><p className="text-xs text-steel-500">{l.qty} {unitLabel(l.unit, l.qty)}</p></div>
                 <p className="text-sm font-semibold tabular-nums">{money(l.price * l.qty)}</p>
               </li>
             ))}
