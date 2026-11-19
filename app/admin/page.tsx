@@ -17,8 +17,8 @@ export default async function AdminHome() {
   return (
     <>
       <PageHeader title="Overview" sub="How the store is performing." />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpis.map((k) => (<Card key={k.label}><p className="text-sm font-medium text-steel-500">{k.label}</p><p className="mt-2 text-3xl font-bold tracking-[-0.04em] tabular-nums">{k.value}</p><p className="mt-1 text-xs text-steel-500">{k.sub}</p></Card>))}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {kpis.map((k) => (<Card key={k.label} className="p-4 sm:p-6"><p className="text-sm font-medium text-steel-500">{k.label}</p><p className="mt-2 text-2xl font-bold sm:text-3xl tracking-[-0.04em] tabular-nums">{k.value}</p><p className="mt-1 text-xs text-steel-500">{k.sub}</p></Card>))}
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.7fr_1fr]">

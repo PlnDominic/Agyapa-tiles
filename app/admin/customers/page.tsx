@@ -9,7 +9,7 @@ export default async function CustomersPage() {
   return (
     <>
       <PageHeader title="Customers" sub={`${customers.length} customers, ranked by lifetime spend`} />
-      <div className="overflow-x-auto rounded-[28px] bg-steel-50">
+      <div className="hidden overflow-x-auto rounded-[28px] bg-steel-50 md:block">
         <table className="w-full min-w-[640px] text-sm">
           <thead><tr className="text-left text-xs uppercase tracking-wider text-steel-500"><th className="px-6 py-4 font-semibold">Customer</th><th className="font-semibold">Phone</th><th className="font-semibold">Orders</th><th className="font-semibold">Last order</th><th className="px-6 text-right font-semibold">Lifetime spend</th></tr></thead>
           <tbody className="divide-y divide-steel-200">
@@ -20,6 +20,23 @@ export default async function CustomersPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile cards */}
+      <ul className="space-y-3 md:hidden">
+        {customers.length === 0 && <li className="rounded-3xl bg-steel-50 py-14 text-center text-steel-500">No customers yet.</li>}
+        {customers.map((c) => (
+          <li key={c.email} className="rounded-3xl bg-steel-50 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0"><p className="truncate font-semibold tracking-tight">{c.name}</p><p className="truncate text-xs text-steel-500">{c.email}</p></div>
+              <p className="font-bold tabular-nums">{money(c.spent)}</p>
+            </div>
+            <div className="mt-3 flex items-center justify-between text-xs text-steel-600">
+              <a href={`tel:${c.phone}`} className="font-medium text-brand-600">{c.phone}</a>
+              <span>{c.orders} order{c.orders === 1 ? "" : "s"} · last {dateShort(c.last)}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }

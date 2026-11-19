@@ -13,8 +13,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-white lg:flex">
         <AdminNav name={user.full_name ?? user.email} />
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1180px] px-5 py-8 md:px-10 md:py-12">{children}</div>
+        <div className="min-w-0 flex-1 pb-28 lg:pb-0">
+          <div className="mx-auto max-w-[1180px] px-4 py-6 sm:px-6 md:px-10 md:py-12">{children}</div>
         </div>
       </div>
     </MotionConfig>

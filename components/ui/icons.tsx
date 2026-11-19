@@ -33,3 +33,5 @@ export const PhoneIcon = (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><pat
 export const LockIcon = (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><rect x="5" y="10.5" width="14" height="9.5" rx="2.2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>);
 export const StoreIcon = (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5v10h16v-10M9.5 19.5v-5h5v5" /></svg>);
 export const SparkIcon = (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6" /></svg>);
+export const MoreIcon = (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)} fill="currentColor" strokeWidth={0}><circle cx="5.5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18.5" cy="12" r="1.8" /></svg>);
+export const LogoutIcon = (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 8l-4 4 4 4M6 12h10" /></svg>);
