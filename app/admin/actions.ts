@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { adminDeleteProduct, adminSaveProduct, adminUpdateOrder, requireAdmin, type ProductInput } from "@/lib/store";
+import { adminDeleteCategory, adminDeleteProduct, adminSaveCategory, adminSaveProduct, adminSaveSettings, adminUpdateOrder, requireAdmin, type ProductInput } from "@/lib/store";
 import { slugify } from "@/lib/format";
 import { PATTERNS } from "@/lib/types";
 
@@ -82,4 +82,61 @@ export async function deleteProductAction(fd: FormData) {
   if (id) await adminDeleteProduct(id);
   revalidatePath("/", "layout");
   redirect("/admin/products");
+}
+
+const categorySchema = z.object({
+  name: z.string().trim().min(2, "Name is required").max(80),
+  slug: z.string().trim().max(100).optional(),
+  description: z.string().trim().max(300).optional(),
+  pattern_key: z.enum(PATTERNS as [string, ...string[]]),
+  sort_order: z.coerce.number().int().min(0).max(1000),
+});
+
+export async function saveCategoryAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const id = String(fd.get("id") ?? "") || null;
+  const parsed = categorySchema.safeParse(Object.fromEntries(fd));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid category" };
+  const d = parsed.data;
+  try {
+    await adminSaveCategory(id, {
+      name: d.name, slug: slugify(d.slug || d.name), description: d.description || null,
+      pattern_key: d.pattern_key as ProductInput["pattern_key"], sort_order: d.sort_order,
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    return { error: /duplicate|unique/i.test(msg) ? "That slug is already used by another category" : msg || "Could not save category" };
+  }
+  revalidatePath("/", "layout");
+  redirect("/admin/categories");
+}
+
+export async function deleteCategoryAction(fd: FormData) {
+  await requireAdmin();
+  const id = String(fd.get("id") ?? "");
+  if (id) await adminDeleteCategory(id);
+  revalidatePath("/", "layout");
+  redirect("/admin/categories");
+}
+
+const settingsSchema = z.object({
+  store_name: z.string().trim().min(2, "Store name is required").max(80),
+  phone: z.string().trim().min(7, "Enter a valid phone number").max(30),
+  email: z.string().trim().email("Enter a valid email").max(120).optional().or(z.literal("")),
+  address: z.string().trim().min(5, "Address is required").max(200),
+  delivery_fee: z.coerce.number().min(0, "Delivery fee can't be negative").max(100000),
+  free_delivery_threshold: z.coerce.number().min(0, "Threshold can't be negative").max(10000000),
+});
+
+export async function saveSettingsAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const parsed = settingsSchema.safeParse(Object.fromEntries(fd));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid settings" };
+  try {
+    await adminSaveSettings({ ...parsed.data, email: parsed.data.email || null });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not save settings" };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true };
 }

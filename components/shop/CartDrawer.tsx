@@ -7,10 +7,11 @@ import { useCart } from "./CartProvider";
 import { Thumb } from "./Thumb";
 import { btn } from "@/components/ui/Button";
 import { BagIcon, CloseIcon, MinusIcon, PlusIcon, TruckIcon } from "@/components/ui/icons";
-import { FREE_DELIVERY_THRESHOLD, money } from "@/lib/format";
+import { money } from "@/lib/format";
 
 export function CartDrawer() {
-  const { open, setOpen, lines, subtotal, delivery, total, setQty, remove } = useCart();
+  const { open, setOpen, lines, subtotal, delivery, total, setQty, remove, settings } = useCart();
+  const FREE_DELIVERY_THRESHOLD = settings.free_delivery_threshold;
   const remaining = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
   const progress = Math.min(1, subtotal / FREE_DELIVERY_THRESHOLD);
 

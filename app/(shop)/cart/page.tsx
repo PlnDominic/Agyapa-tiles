@@ -5,10 +5,10 @@ import { useCart } from "@/components/shop/CartProvider";
 import { Thumb } from "@/components/shop/Thumb";
 import { btn } from "@/components/ui/Button";
 import { MinusIcon, PlusIcon } from "@/components/ui/icons";
-import { FREE_DELIVERY_THRESHOLD, money } from "@/lib/format";
+import { money } from "@/lib/format";
 
 export default function CartPage() {
-  const { lines, subtotal, delivery, total, setQty, remove, ready } = useCart();
+  const { lines, subtotal, delivery, total, setQty, remove, ready, settings } = useCart();
   return (
     <div className="container-x pb-10 pt-14 md:pt-20">
       <h1 className="t-1">Your bag</h1>
@@ -44,7 +44,7 @@ export default function CartPage() {
             <dl className="mt-5 space-y-3 text-[0.9375rem]">
               <div className="flex justify-between text-steel-600"><dt>Subtotal</dt><dd className="tabular-nums">{money(subtotal)}</dd></div>
               <div className="flex justify-between text-steel-600"><dt>Delivery</dt><dd className="tabular-nums">{delivery === 0 ? "Free" : money(delivery)}</dd></div>
-              {delivery > 0 && <p className="text-xs text-steel-500">Add {money(FREE_DELIVERY_THRESHOLD - subtotal)} more for free delivery.</p>}
+              {delivery > 0 && <p className="text-xs text-steel-500">Add {money(settings.free_delivery_threshold - subtotal)} more for free delivery.</p>}
               <div className="flex justify-between border-t border-steel-200 pt-4 text-xl font-semibold tracking-tight"><dt>Total</dt><dd className="tabular-nums">{money(total)}</dd></div>
             </dl>
             <Link href="/checkout" className={btn("primary", "lg", "mt-6 w-full")}>Check out</Link>

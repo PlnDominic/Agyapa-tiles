@@ -12,7 +12,7 @@ Premium e-commerce storefront and admin back office for **Agyapa Tiles**: browse
 | **Shop** | Category / finish / search / sort filters, product pages with gallery views and live box maths, slide-in bag with free-delivery progress. |
 | **Checkout & tracking** | Guest checkout (no account needed). Prices & stock are re-checked in the database. Order number + email tracking page with a live timeline. |
 | **Accounts** | Supabase Auth sign-up / sign-in; customers see their orders and timelines. |
-| **Admin** (`/admin`) | KPI dashboard & revenue chart, orders (filter, search, status + tracking message + payment status), products CRUD with photo upload, customers. |
+| **Admin** (`/admin`) | KPI dashboard & revenue chart, orders (filter, search, status + tracking message + payment status), products CRUD with photo upload, categories CRUD, customers, store settings (phone, address, delivery fee and free-delivery threshold), sign out. |
 | **Visuals** | Every tile has a procedurally generated surface (marble, terrazzo, wood, chevron, zellige, …) in brand colours, so the catalogue looks rich before photography exists. Upload a photo on any product to replace it. |
 
 Brand: primary **red `#B83430`**, secondary **gray** ramp, white background. Tokens live in `app/globals.css`.

@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { PatternKey, Product } from "@/lib/types";
-import { deliveryFee } from "@/lib/format";
+import { deliveryFeeFor, type Settings } from "@/lib/settings";
 
 export interface CartLine {
   productId: string; slug: string; name: string; price: number; qty: number; unit: string;
@@ -11,6 +11,7 @@ export interface CartLine {
 
 interface CartCtx {
   lines: CartLine[]; count: number; subtotal: number; delivery: number; total: number;
+  settings: Settings;
   open: boolean; setOpen: (v: boolean) => void; ready: boolean;
   add: (p: Product, qty?: number, openDrawer?: boolean) => void;
   setQty: (id: string, qty: number) => void;
@@ -21,7 +22,7 @@ interface CartCtx {
 const Ctx = createContext<CartCtx | null>(null);
 const KEY = "agyapa-bag-v1";
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({ children, settings }: { children: ReactNode; settings: Settings }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
@@ -60,9 +61,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartCtx>(() => {
     const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
-    const delivery = deliveryFee(subtotal);
-    return { lines, count: lines.reduce((s, l) => s + l.qty, 0), subtotal, delivery, total: subtotal + delivery, open, setOpen, ready, add, setQty, remove, clear };
-  }, [lines, open, ready, add, setQty, remove, clear]);
+    const delivery = deliveryFeeFor(subtotal, settings);
+    return { lines, count: lines.reduce((s, l) => s + l.qty, 0), subtotal, delivery, total: subtotal + delivery, settings, open, setOpen, ready, add, setQty, remove, clear };
+  }, [lines, open, ready, add, setQty, remove, clear, settings]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

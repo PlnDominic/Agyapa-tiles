@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
 import { isDemo } from "./config";
+import { cache } from "react";
 import { DEMO_CATEGORIES, DEMO_PRODUCTS } from "./demo-data";
+import { DEFAULT_SETTINGS, type Settings } from "./settings";
 import type {
   Address, Category, Order, OrderDetail, OrderItem, OrderStatus, PaymentMethod, Product,
 } from "./types";
@@ -9,6 +11,8 @@ import type {
 /* ───────────────────────── Fallback sample catalogue (in memory; read-only for shoppers) ───────────────────────── */
 
 interface DemoState {
+  categories: Category[];
+  settings: Settings;
   products: Product[];
   orders: OrderDetail[];
   seq: number;
@@ -18,7 +22,7 @@ const g = globalThis as unknown as { __agyapaDemo?: DemoState };
 function demo(): DemoState {
   if (!g.__agyapaDemo) {
     const products = structuredClone(DEMO_PRODUCTS);
-    g.__agyapaDemo = { products, orders: [], seq: 100250 };
+    g.__agyapaDemo = { categories: structuredClone(DEMO_CATEGORIES), settings: { ...DEFAULT_SETTINGS }, products, orders: [], seq: 100250 };
   }
   return g.__agyapaDemo;
 }
@@ -63,7 +67,7 @@ function sortProducts(list: Product[], sort?: string) {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  if (isDemo) return DEMO_CATEGORIES;
+  if (isDemo) return [...demo().categories].sort((a, b) => a.sort_order - b.sort_order);
   const sb = await createClient();
   const { data } = await sb.from("categories").select("*").order("sort_order");
   return (data ?? []) as Category[];
@@ -304,4 +308,74 @@ export async function adminStats() {
     lowStock: products.filter((p) => p.active && p.stock <= 200).sort((a, b) => a.stock - b.stock).slice(0, 6),
     recent: orders.slice(0, 6),
   };
+}
+
+/* ───────────────────────── Settings & categories ───────────────────────── */
+
+export const getSettings = cache(async (): Promise<Settings> => {
+  if (isDemo) return demo().settings;
+  try {
+    const sb = await createClient();
+    const { data } = await sb.from("site_settings").select("*").eq("id", 1).maybeSingle();
+    if (!data) return DEFAULT_SETTINGS;
+    return {
+      store_name: data.store_name, phone: data.phone, email: data.email, address: data.address,
+      delivery_fee: Number(data.delivery_fee), free_delivery_threshold: Number(data.free_delivery_threshold),
+    };
+  } catch {
+    return DEFAULT_SETTINGS; // table not created yet: never break the storefront
+  }
+});
+
+export async function adminSaveSettings(input: Settings) {
+  await requireAdmin();
+  if (isDemo) { demo().settings = { ...input }; return; }
+  const sb = await createClient();
+  const { error } = await sb.from("site_settings").upsert({ id: 1, ...input, updated_at: new Date().toISOString() });
+  if (error) throw new Error(error.message);
+}
+
+export type CategoryInput = Pick<Category, "slug" | "name" | "description" | "pattern_key" | "sort_order">;
+
+export async function adminListCategories(): Promise<(Category & { productCount: number })[]> {
+  await requireAdmin();
+  const [cats, products] = await Promise.all([getCategories(), adminListProducts()]);
+  return cats.map((c) => ({ ...c, productCount: products.filter((p) => p.category_id === c.id).length }));
+}
+
+export async function adminGetCategory(id: string): Promise<Category | null> {
+  await requireAdmin();
+  return (await getCategories()).find((c) => c.id === id) ?? null;
+}
+
+export async function adminSaveCategory(id: string | null, input: CategoryInput) {
+  await requireAdmin();
+  if (isDemo) {
+    const d = demo();
+    if (id) {
+      const c = d.categories.find((x) => x.id === id);
+      if (!c) throw new Error("Category not found");
+      Object.assign(c, input);
+      d.products.forEach((p) => { if (p.category_id === id) p.category = { id, slug: c.slug, name: c.name }; });
+    } else {
+      d.categories.push({ id: `cat-${crypto.randomUUID().slice(0, 8)}`, ...input });
+    }
+    return;
+  }
+  const sb = await createClient();
+  const { error } = id ? await sb.from("categories").update(input).eq("id", id) : await sb.from("categories").insert(input);
+  if (error) throw new Error(error.message);
+}
+
+export async function adminDeleteCategory(id: string) {
+  await requireAdmin();
+  if (isDemo) {
+    const d = demo();
+    d.categories = d.categories.filter((c) => c.id !== id);
+    d.products.forEach((p) => { if (p.category_id === id) { p.category_id = null; p.category = null; } });
+    return;
+  }
+  const sb = await createClient();
+  const { error } = await sb.from("categories").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }

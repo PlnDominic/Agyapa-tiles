@@ -1,7 +1,7 @@
--- Agyapa Tiles: one-shot Supabase setup (safe to run more than once). Paste into Supabase > SQL Editor > New query > Run.
--- Contains: schema + security policies + functions, then sample products.
+-- Agyapa Tiles: one-shot Supabase setup (safe to run more than once).
+-- Contains: schema + security policies + functions, store settings, then sample products.
 
--- Agyapa Tiles — initial schema
+-- Agyapa Tiles — initial schema (safe to re-run)
 -- Run with the Supabase CLI (`supabase db push`) or paste into the SQL editor.
 
 create extension if not exists "pgcrypto";
@@ -309,6 +309,35 @@ create policy "admin delete product images" on storage.objects for delete using 
 -- Remove discontinued products. Past orders keep their line items (order_items.product_id is set null).
 delete from public.products
 where slug in ('cement-heritage', 'herringbone-ash', 'terrazzo-milano', 'zellige-brick-red');
+
+-- Store settings editable from the admin dashboard (single row).
+create table if not exists public.site_settings (
+  id int primary key default 1 check (id = 1),
+  store_name text not null default 'Agyapa Tiles',
+  phone text not null default '024 596 7229',
+  email text,
+  address text not null default 'Afari, off Abuakwa – Bibiani Road, Ghana',
+  delivery_fee numeric(12,2) not null default 120 check (delivery_fee >= 0),
+  free_delivery_threshold numeric(12,2) not null default 3000 check (free_delivery_threshold >= 0),
+  updated_at timestamptz not null default now()
+);
+insert into public.site_settings (id) values (1) on conflict (id) do nothing;
+
+alter table public.site_settings enable row level security;
+drop policy if exists "public read settings" on public.site_settings;
+create policy "public read settings" on public.site_settings for select using (true);
+drop policy if exists "admin write settings" on public.site_settings;
+create policy "admin write settings" on public.site_settings for all using (public.is_admin()) with check (public.is_admin());
+
+-- Delivery rules now come from the settings row.
+create or replace function public.delivery_fee(p_subtotal numeric)
+returns numeric language sql stable as $$
+  select case
+    when p_subtotal = 0 or p_subtotal >= s.free_delivery_threshold then 0
+    else s.delivery_fee
+  end
+  from public.site_settings s where s.id = 1;
+$$;
 
 -- Seed data for Agyapa Tiles (generated from lib/demo-data.ts). Safe to re-run.
 

@@ -9,7 +9,7 @@ import { useCart } from "./CartProvider";
 import { CheckIcon, MinusIcon, PlusIcon, TruckIcon, ShieldIcon } from "@/components/ui/icons";
 
 export function ProductBuy({ product: p }: { product: Product }) {
-  const { add } = useCart();
+  const { add, settings } = useCart();
   const [qty, setQty] = useState(Math.min(p.stock, Math.max(1, Math.ceil(p.coverage_per_box * 5))));
   const [done, setDone] = useState(false);
   const sold = p.stock <= 0;
@@ -41,7 +41,7 @@ export function ProductBuy({ product: p }: { product: Product }) {
       </Button>
 
       <ul className="mt-6 space-y-3 text-sm text-steel-600">
-        <li className="flex items-center gap-3"><TruckIcon className="text-brand-600" />Free delivery on orders over GH₵ 3,000</li>
+        <li className="flex items-center gap-3"><TruckIcon className="text-brand-600" />Free delivery on orders over {money(settings.free_delivery_threshold)}</li>
         <li className="flex items-center gap-3"><ShieldIcon className="text-brand-600" />Inspected for shade and size before dispatch</li>
       </ul>
     </div>

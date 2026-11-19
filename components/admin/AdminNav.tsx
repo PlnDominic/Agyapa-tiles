@@ -4,13 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { ChartIcon, GridIcon, PackageIcon, StoreIcon, UsersIcon } from "@/components/ui/icons";
+import { signOut } from "@/app/auth/actions";
+import { ChartIcon, GridIcon, LayersIcon, PackageIcon, SettingsIcon, StoreIcon, UsersIcon } from "@/components/ui/icons";
 
 const items = [
   { href: "/admin", label: "Overview", icon: ChartIcon, exact: true },
   { href: "/admin/orders", label: "Orders", icon: PackageIcon },
   { href: "/admin/products", label: "Products", icon: GridIcon },
+  { href: "/admin/categories", label: "Categories", icon: LayersIcon },
   { href: "/admin/customers", label: "Customers", icon: UsersIcon },
+  { href: "/admin/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export function AdminNav({ name }: { name: string }) {
@@ -31,9 +34,11 @@ export function AdminNav({ name }: { name: string }) {
               </Link>
             );
           })}
+          <form action={signOut} className="shrink-0 lg:hidden"><button className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-steel-600 hover:bg-steel-50">Sign out</button></form>
         </nav>
         <div className="hidden space-y-1 border-t border-steel-100 pt-4 lg:block">
           <Link href="/" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-steel-600 hover:bg-steel-50"><StoreIcon width={18} height={18} />View storefront</Link>
+          <form action={signOut}><button className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-steel-600 hover:bg-steel-50"><UsersIcon width={18} height={18} />Sign out</button></form>
           <p className="truncate px-3.5 pt-2 text-xs text-steel-500">{name}</p>
         </div>
       </div>
