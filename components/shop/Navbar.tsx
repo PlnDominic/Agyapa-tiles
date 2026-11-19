@@ -24,6 +24,9 @@ export function Navbar({ user }: { user: { name: string | null; admin: boolean }
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 12));
+  // On the home page the nav floats over the dark hero (which carries its own logo lockup).
+  const onHero = pathname === "/" && !scrolled && !menu;
+  const icon = clsx("grid size-10 place-items-center rounded-full transition", onHero ? "text-white hover:bg-white/15" : "text-steel-800 hover:bg-steel-100");
 
   return (
     <>
@@ -34,7 +37,7 @@ export function Navbar({ user }: { user: { name: string | null; admin: boolean }
         )}
       >
         <div className="container-x flex h-[60px] items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2.5" aria-label="Agyapa Tiles home" onClick={() => setMenu(false)}>
+          <Link href="/" className={clsx("flex items-center gap-2.5 transition-opacity duration-300", onHero && "pointer-events-none opacity-0")} aria-label="Agyapa Tiles home" onClick={() => setMenu(false)}>
             <Image src="/brand/logo-mark.png" alt="" width={44} height={40} className="h-9 w-auto" priority />
             <span className="whitespace-nowrap text-[0.9375rem] tracking-[-0.03em] sm:text-[1.0625rem]"><b className="font-extrabold">AGYAPA</b> <span className="font-light">TILES</span></span>
           </Link>
@@ -43,7 +46,7 @@ export function Navbar({ user }: { user: { name: string | null; admin: boolean }
             {links.map((l) => {
               const active = l.href === "/shop" ? pathname === "/shop" : pathname === l.href.split("?")[0] && l.href !== "/shop";
               return (
-                <Link key={l.href} href={l.href} className={clsx("relative rounded-full px-4 py-2 text-[0.875rem] font-medium tracking-[-0.01em] transition-colors", active ? "text-steel-900" : "text-steel-600 hover:text-steel-900")}>
+                <Link key={l.href} href={l.href} className={clsx("relative rounded-full px-4 py-2 text-[0.875rem] font-medium tracking-[-0.01em] transition-colors", onHero ? "text-white/80 hover:text-white" : active ? "text-steel-900" : "text-steel-600 hover:text-steel-900")}>
                   {l.label}
                 </Link>
               );
@@ -51,9 +54,9 @@ export function Navbar({ user }: { user: { name: string | null; admin: boolean }
           </nav>
 
           <div className="flex items-center gap-1">
-            <Link href="/shop?focus=search" aria-label="Search tiles" className="hidden size-10 sm:grid place-items-center rounded-full text-steel-800 transition hover:bg-steel-100"><SearchIcon /></Link>
-            <Link href={user ? (user.admin ? "/admin" : "/account") : "/login"} aria-label={user ? "Account" : "Sign in"} className="grid size-10 place-items-center rounded-full text-steel-800 transition hover:bg-steel-100"><UserIcon /></Link>
-            <button onClick={() => setOpen(true)} aria-label={`Open bag, ${count} items`} className="relative grid size-10 place-items-center rounded-full text-steel-800 transition hover:bg-steel-100">
+            <Link href="/shop?focus=search" aria-label="Search tiles" className={clsx(icon, "hidden sm:grid")}><SearchIcon /></Link>
+            <Link href={user ? (user.admin ? "/admin" : "/account") : "/login"} aria-label={user ? "Account" : "Sign in"} className={icon}><UserIcon /></Link>
+            <button onClick={() => setOpen(true)} aria-label={`Open bag, ${count} items`} className={clsx(icon, "relative")}>
               <BagIcon />
               <AnimatePresence>
                 {count > 0 && (
@@ -64,7 +67,7 @@ export function Navbar({ user }: { user: { name: string | null; admin: boolean }
                 )}
               </AnimatePresence>
             </button>
-            <button onClick={() => setMenu((v) => !v)} aria-label="Menu" aria-expanded={menu} className="grid size-10 place-items-center rounded-full text-steel-800 transition hover:bg-steel-100 lg:hidden">
+            <button onClick={() => setMenu((v) => !v)} aria-label="Menu" aria-expanded={menu} className={clsx(icon, "lg:hidden")}>
               {menu ? <CloseIcon /> : <MenuIcon />}
             </button>
           </div>

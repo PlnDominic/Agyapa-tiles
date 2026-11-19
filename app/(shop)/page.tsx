@@ -17,7 +17,7 @@ export default async function Home() {
   const hero = featured.length >= 6 ? featured : all;
   return (
     <>
-      <Hero products={hero} />
+      <Hero />
       <Marquee />
       <Story products={hero} />
       <Bento categories={categories} products={all} />

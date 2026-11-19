@@ -13,3 +13,6 @@ export const isSupabaseConfigured = Boolean(
 /** Demo mode: no Supabase credentials, so the catalogue + orders live in memory. Never open in production. */
 export const isDemo = !isSupabaseConfigured;
 export const demoAdminAllowed = process.env.NODE_ENV !== "production" || process.env.ALLOW_DEMO_ADMIN === "true";
+
+/** Hero background photo. Place your image at public/brand/hero-bg.jpg (landscape, ~2400px wide, dark works best). */
+export const HERO_BACKGROUND = "/brand/hero-bg.jpg";
