@@ -1,4 +1,5 @@
 -- Real product photos (files live in the website's public/products folder). Only fills products that have no photo yet.
+update public.products set image_url = '/products/FGC66071G.jpg' where sku = 'FGC66071G' and image_url is null;
 update public.products set image_url = '/products/FGG44001G.jpg' where sku = 'FGG44001G' and image_url is null;
 update public.products set image_url = '/products/FGG44004G.jpg' where sku = 'FGG44004G' and image_url is null;
 update public.products set image_url = '/products/FGG44004G.jpg' where sku = 'FGG44004G-2' and image_url is null;
@@ -23,6 +24,10 @@ update public.products set image_url = '/products/FGP44230G.jpg' where sku = 'FG
 update public.products set image_url = '/products/FGP44234G.jpg' where sku = 'FGP44234G' and image_url is null;
 update public.products set image_url = '/products/FGP44235G.jpg' where sku = 'FGP44235G' and image_url is null;
 update public.products set image_url = '/products/FGP44236G.jpg' where sku = 'FGP44236G' and image_url is null;
+update public.products set image_url = '/products/FGP44239G.jpg' where sku = 'FGP44239G' and image_url is null;
+update public.products set image_url = '/products/FGP44241G.jpg' where sku = 'FGP44241G' and image_url is null;
+update public.products set image_url = '/products/FGP44243G.jpg' where sku = 'FGP44243G' and image_url is null;
+update public.products set image_url = '/products/FGPN44002G.jpg' where sku = 'FGPN44002G' and image_url is null;
 update public.products set image_url = '/products/FGW212001.jpg' where sku = 'FGW212001' and image_url is null;
 update public.products set image_url = '/products/FGW212005G.jpg' where sku = 'FGW212005G' and image_url is null;
 update public.products set image_url = '/products/GCZ33013G.jpg' where sku = 'GCZ33013G' and image_url is null;
