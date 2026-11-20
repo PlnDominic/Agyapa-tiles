@@ -32,6 +32,14 @@ export function ProductGallery({ product: p }: { product: Product }) {
   ] as const;
   const [i, setI] = useState(0);
   const v = views[i];
+  // Real photo: show it as-is (the generated "laid" / "detail" views only make sense for previews).
+  if (p.image_url) {
+    return (
+      <div className="relative aspect-square overflow-hidden bg-steel-50 shadow-soft md:aspect-[4/4.4]">
+        <Image src={p.image_url} alt={p.name} fill sizes="(min-width:1024px) 50vw, 100vw" className="object-contain" priority />
+      </div>
+    );
+  }
   return (
     <div>
       <div className="relative aspect-square overflow-hidden bg-steel-50 shadow-soft md:aspect-[4/4.4]">

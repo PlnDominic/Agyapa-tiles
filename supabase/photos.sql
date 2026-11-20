@@ -1,0 +1,13 @@
+-- Real product photos (files live in the website's public/products folder). Only fills products that have no photo yet.
+update public.products set image_url = '/products/FGG44004G.jpg' where sku = 'FGG44004G' and image_url is null;
+update public.products set image_url = '/products/FGG44004G.jpg' where sku = 'FGG44004G-2' and image_url is null;
+update public.products set image_url = '/products/FGG44005G.jpg' where sku = 'FGG44005G' and image_url is null;
+update public.products set image_url = '/products/FGG44005G.jpg' where sku = 'FGG44005G-2' and image_url is null;
+update public.products set image_url = '/products/FGG44006G.jpg' where sku = 'FGG44006G' and image_url is null;
+update public.products set image_url = '/products/FGG44007G.jpg' where sku = 'FGG44007G' and image_url is null;
+update public.products set image_url = '/products/FGG44008G.jpg' where sku = 'FGG44008G' and image_url is null;
+update public.products set image_url = '/products/GCZ33013G.jpg' where sku = 'GCZ33013G' and image_url is null;
+update public.products set image_url = '/products/GCZ33015G.jpg' where sku = 'GCZ33015G' and image_url is null;
+update public.products set image_url = '/products/GCZ33017.jpg' where sku = 'GCZ33017' and image_url is null;
+update public.products set image_url = '/products/YMP612012G.jpg' where sku = 'YMP612012G' and image_url is null;
+update public.products set image_url = '/products/YMP612081G.jpg' where sku = 'YMP612081G' and image_url is null;

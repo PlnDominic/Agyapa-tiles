@@ -47,7 +47,7 @@ const productSchema = z.object({
   pattern_key: z.enum(PATTERNS as [string, ...string[]]),
   color_hex: hex,
   accent_hex: hex,
-  image_url: z.string().trim().url("Image must be a valid URL").optional().or(z.literal("")),
+  image_url: z.string().trim().max(500).refine((v) => v === "" || v.startsWith("/") || /^https?:\/\//.test(v), "Image must be a web address or a /path").optional(),
 });
 
 export async function saveProductAction(_: ActionState, fd: FormData): Promise<ActionState> {

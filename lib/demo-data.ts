@@ -20,7 +20,7 @@ export const DEMO_PRODUCTS: Product[] = (inventory.products as Row[]).map((p, i)
     id: `prod-${i + 1}`, slug: p.slug, name: p.name, description: p.desc,
     category_id: c.id, category: { id: c.id, slug: c.slug, name: c.name },
     price: p.price, compare_at_price: null, sku: p.sku, stock: p.stock, unit: p.unit, size: p.size, finish: p.finish, material: null,
-    coverage_per_box: p.cov, pattern_key: p.pat as PatternKey, color_hex: p.c1, accent_hex: p.c2, image_url: null,
+    coverage_per_box: p.cov, pattern_key: p.pat as PatternKey, color_hex: p.c1, accent_hex: p.c2, image_url: (p as { img?: string }).img ?? null,
     featured: p.feat, active: p.active, created_at: new Date(Date.now() - i * day / 6).toISOString(),
   };
 });

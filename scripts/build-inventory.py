@@ -9,7 +9,7 @@ Writes:
   supabase/seed.sql         (run in the Supabase SQL Editor after setup.sql)
 Columns expected: Product Name | Retail(₵) | Quantity.   Prices are per carton for tiles, per piece otherwise.
 """
-import json, re, sys, zlib
+import json, os, re, sys, zlib
 import openpyxl
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else "AGYAPA.xlsx"
@@ -162,6 +162,12 @@ for raw, price, qty in rows:
     products.append(dict(name=name, slug=slug, sku=sku, cat=cat, price=price, stock=stock, unit=unit, size=(size + " cm") if size else None,
                          finish=finish, pat=pattern_for(name, cat, slug), c1=c1, c2=c2, cov=COVER.get(size, 0) if is_tile else 0,
                          desc=desc, active=active, feat=False))
+# real photos: any public/products/<SKU>.jpg attaches to the product with that SKU
+PHOTO_DIR = "public/products"
+photos = {os.path.splitext(f)[0].upper(): f for f in os.listdir(PHOTO_DIR)} if os.path.isdir(PHOTO_DIR) else {}
+for p in products:
+    f = photos.get(re.sub(r"-\d+$", "", p["sku"].upper())) or photos.get(p["sku"].upper())  # pack-size variants (-2) share the design photo
+    if f: p["img"] = f"/products/{f}"
 # featured: well-stocked tiles across the tile categories
 pool = {k: sorted([p for p in products if p["cat"] == k and p["stock"] > 30 and p["active"]], key=lambda p: -p["stock"]) for k in ("polished-tiles", "rustic-tiles", "wall-tiles", "floor-tiles")}
 for k, n in (("polished-tiles", 3), ("rustic-tiles", 2), ("wall-tiles", 2), ("floor-tiles", 1)):
@@ -184,6 +190,11 @@ vals = [f"  ({q(p['name'])}, {q(p['slug'])}, {q(p['sku'])}, {q(p['cat'])}, {p['p
 sql.append(",\n".join(vals))
 sql.append(") as v(name, slug, sku, cat, price, stock, unit, size, finish, pattern_key, color_hex, accent_hex, coverage_per_box, description, active, featured)")
 sql.append("join public.categories c on c.slug = v.cat\non conflict (slug) do nothing;")
+photo_sql = ["-- Real product photos (files live in the website's public/products folder). Only fills products that have no photo yet."]
+photo_sql += [f"update public.products set image_url = {q(p['img'])} where sku = {q(p['sku'])} and image_url is null;" for p in products if p.get("img")]
+sql.append("")
+sql += photo_sql
+open("supabase/photos.sql", "w").write("\n".join(photo_sql) + "\n")
 open("supabase/seed.sql", "w").write("\n".join(sql) + "\n")
 
 import collections
@@ -191,4 +202,5 @@ print("products:", len(products), "| skipped (not products):", skipped)
 print("hidden (price <= 10):", hidden)
 print("by category:", collections.Counter(p["cat"] for p in products).most_common())
 print("in stock:", sum(1 for p in products if p["stock"] > 0), "sold out:", sum(1 for p in products if p["stock"] == 0))
+print("photos attached:", [p["sku"] for p in products if p.get("img")])
 print("featured:", [p["name"] for p in products if p["feat"]])
