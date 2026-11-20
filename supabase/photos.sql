@@ -1,4 +1,5 @@
 -- Real product photos (files live in the website's public/products folder). Only fills products that have no photo yet.
+update public.products set image_url = '/products/FGG44001G.jpg' where sku = 'FGG44001G' and image_url is null;
 update public.products set image_url = '/products/FGG44004G.jpg' where sku = 'FGG44004G' and image_url is null;
 update public.products set image_url = '/products/FGG44004G.jpg' where sku = 'FGG44004G-2' and image_url is null;
 update public.products set image_url = '/products/FGG44005G.jpg' where sku = 'FGG44005G' and image_url is null;
@@ -11,3 +12,6 @@ update public.products set image_url = '/products/GCZ33015G.jpg' where sku = 'GC
 update public.products set image_url = '/products/GCZ33017.jpg' where sku = 'GCZ33017' and image_url is null;
 update public.products set image_url = '/products/YMP612012G.jpg' where sku = 'YMP612012G' and image_url is null;
 update public.products set image_url = '/products/YMP612081G.jpg' where sku = 'YMP612081G' and image_url is null;
+update public.products set image_url = '/products/YMP612120G.jpg' where sku = 'YMP612120G' and image_url is null;
+update public.products set image_url = '/products/YMP612202G.jpg' where sku = 'YMP612202G' and image_url is null;
+update public.products set image_url = '/products/YMP612204G.jpg' where sku = 'YMP612204G' and image_url is null;
