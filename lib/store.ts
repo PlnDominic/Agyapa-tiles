@@ -169,6 +169,8 @@ export async function countProducts(): Promise<number> {
 export async function getCategorySamples(): Promise<Record<string, Product>> {
   const list = await getProducts({ limit: 500, inStock: true });
   const out: Record<string, Product> = {};
+  // prefer a product with a real photo for each collection
+  for (const p of list) if (p.category_id && p.image_url && !out[p.category_id]) out[p.category_id] = p;
   for (const p of list) if (p.category_id && !out[p.category_id]) out[p.category_id] = p;
   return out;
 }

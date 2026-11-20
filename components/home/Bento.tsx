@@ -2,6 +2,7 @@
 
 import { NavLink as Link } from "@/components/ui/NavLink";
 import { motion } from "motion/react";
+import Image from "next/image";
 import { TileArt } from "@/components/ui/TileArt";
 import { ArrowUpRight } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/motion";
@@ -32,7 +33,11 @@ export function Bento({ categories, samples }: { categories: Category[]; samples
             <Reveal key={c.id} delay={(i % 3) * 0.08} className={clsx("group relative", spans[i])}>
               <Link href={`/shop?category=${c.slug}`} className="absolute inset-0 block overflow-hidden shadow-soft transition-shadow duration-500 hover:shadow-lift">
                 <motion.div className="absolute inset-0" whileHover={{ scale: 1.06 }} transition={{ duration: 1.1, ease: [0.28, 0.11, 0.32, 1] }}>
-                  <TileArt pattern={art.pattern_key} base={art.color_hex} accent={art.accent_hex} seed={c.slug} className="h-full w-full" />
+                  {sample?.image_url ? (
+                    <Image src={sample.image_url} alt={`${c.name}: ${sample.name}`} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" priority={i === 0} />
+                  ) : (
+                    <TileArt pattern={art.pattern_key} base={art.color_hex} accent={art.accent_hex} seed={c.slug} className="h-full w-full" />
+                  )}
                 </motion.div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 text-white md:p-8">

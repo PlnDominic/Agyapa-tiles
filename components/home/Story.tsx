@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { TileArt } from "@/components/ui/TileArt";
 import type { Product } from "@/lib/types";
 
@@ -16,7 +17,10 @@ export function Story({ products }: { products: Product[] }) {
   const [active, setActive] = useState(0);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (v) => setActive(Math.min(steps.length - 1, Math.floor(v * steps.length * 0.999))));
-  const shown = [products[0], products[3] ?? products[1], products[6] ?? products[2]];
+  // Three products from different collections (real photos where available), falling back to the first three.
+  const byCat = new Map<string, Product>();
+  for (const p of products) if (!byCat.has(p.category_id ?? p.id)) byCat.set(p.category_id ?? p.id, p);
+  const shown = [...byCat.values(), ...products.filter((p) => ![...byCat.values()].includes(p))].slice(0, 3);
 
   return (
     <section ref={ref} className="relative h-[330vh]" aria-label="How it works">
@@ -47,7 +51,11 @@ export function Story({ products }: { products: Product[] }) {
               <AnimatePresence>
                 <motion.div key={active} className="absolute inset-0 overflow-hidden shadow-lift"
                   initial={{ opacity: 0, scale: 0.92, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 1.06, rotate: 2 }} transition={{ duration: 0.8, ease: [0.28, 0.11, 0.32, 1] }}>
-                  <TileArt pattern={shown[active].pattern_key} base={shown[active].color_hex} accent={shown[active].accent_hex} seed={shown[active].slug} className="h-full w-full" grout />
+                  {shown[active].image_url ? (
+                    <Image src={shown[active].image_url!} alt={shown[active].name} fill sizes="(min-width: 768px) 460px, 100vw" className="object-cover" priority={active === 0} />
+                  ) : (
+                    <TileArt pattern={shown[active].pattern_key} base={shown[active].color_hex} accent={shown[active].accent_hex} seed={shown[active].slug} className="h-full w-full" grout />
+                  )}
                   <div className="glass absolute inset-x-4 bottom-4 flex items-center justify-between rounded-2xl px-4 py-3">
                     <span className="text-sm font-semibold tracking-tight">{shown[active].name}</span>
                     <span className="text-xs text-steel-600">{shown[active].size}</span>
