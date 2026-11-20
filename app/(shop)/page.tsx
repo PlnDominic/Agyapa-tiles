@@ -1,4 +1,4 @@
-import { countProducts, getCategories, getCategorySamples, getProducts, getSettings } from "@/lib/store";
+import { countProducts, getStoreCategories, getCategorySamples, getProducts, getSettings } from "@/lib/store";
 import { Hero } from "@/components/home/Hero";
 import { Marquee } from "@/components/home/Marquee";
 import { Story } from "@/components/home/Story";
@@ -11,10 +11,10 @@ import { FinalCTA } from "@/components/home/FinalCTA";
 
 export default async function Home() {
   const [categories, featuredList, tiles, samples, total, settings] = await Promise.all([
-    getCategories(), getProducts({ featured: true, inStock: true, limit: 12 }), getProducts({ tilesOnly: true, inStock: true, sort: "price-asc", limit: 400 }),
+    getStoreCategories(), getProducts({ featured: true, inStock: true, limit: 12 }), getProducts({ tilesOnly: true, inStock: true, sort: "price-asc", limit: 400 }),
     getCategorySamples(), countProducts(), getSettings(),
   ]);
-  const featured = featuredList.length ? featuredList : tiles.slice(0, 8);
+  const featured = [...featuredList, ...tiles.filter((t) => !featuredList.some((f) => f.id === t.id))].slice(0, 8);
   const hero = featured;
   return (
     <>

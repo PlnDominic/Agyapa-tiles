@@ -22,3 +22,9 @@ export const HERO_BACKGROUND = "/brand/hero-bg.jpg";
  * (nav, buttons, cards, footer, bag). Off by default; set NEXT_PUBLIC_HOME_ONLY=true in the environment to turn it on.
  */
 export const HOME_ONLY = process.env.NEXT_PUBLIC_HOME_ONLY === "true";
+
+/**
+ * While true (default), the public storefront lists only products that have a real photo.
+ * The admin still shows everything. Set NEXT_PUBLIC_SHOW_ALL_PRODUCTS=true to list the whole catalogue.
+ */
+export const PHOTOS_ONLY = process.env.NEXT_PUBLIC_SHOW_ALL_PRODUCTS !== "true";

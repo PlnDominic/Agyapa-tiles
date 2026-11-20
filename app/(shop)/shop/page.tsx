@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import { PAGE_SIZE, getCategories, getProductsPage, getSizes } from "@/lib/store";
+import { PAGE_SIZE, getProductsPage, getSizes, getStoreCategories } from "@/lib/store";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { ShopToolbar } from "@/components/shop/ShopToolbar";
 import { Reveal } from "@/components/ui/motion";
@@ -13,7 +13,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const sp = await searchParams;
   const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
   const [categories, sizes, { items: products, total }] = await Promise.all([
-    getCategories(),
+    getStoreCategories(),
     getSizes(),
     getProductsPage({ category: sp.category, q: sp.q, sort: sp.sort, finish: sp.finish, size: sp.size }, page),
   ]);

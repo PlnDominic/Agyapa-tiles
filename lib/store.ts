@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
-import { isDemo } from "./config";
+import { isDemo, PHOTOS_ONLY } from "./config";
 import { cache } from "react";
 import { DEMO_CATEGORIES, DEMO_PRODUCTS } from "./demo-data";
 import { DEFAULT_SETTINGS, type Settings } from "./settings";
@@ -74,7 +74,7 @@ function sortProducts(list: Product[], sort?: string) {
 }
 
 function filterDemo(list: Product[], query: ProductQuery) {
-  let out = list;
+  let out = PHOTOS_ONLY ? list.filter((p) => Boolean(p.image_url)) : list;
   if (query.category) out = out.filter((p) => p.category?.slug === query.category);
   if (query.finish) out = out.filter((p) => p.finish?.toLowerCase() === query.finish!.toLowerCase());
   if (query.size) out = out.filter((p) => p.size === query.size);
@@ -92,6 +92,7 @@ function filterDemo(list: Product[], query: ProductQuery) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function applyDb(req: any, query: ProductQuery) {
+  if (PHOTOS_ONLY) req = req.not("image_url", "is", null);
   if (query.category) req = req.eq("category.slug", query.category);
   if (query.featured) req = req.eq("featured", true);
   if (query.finish) req = req.ilike("finish", query.finish);
@@ -132,6 +133,20 @@ export async function getProductsPage(query: ProductQuery, page = 1, pageSize = 
   return { items: (data ?? []) as unknown as Product[], total: count ?? 0 };
 }
 
+/** Categories to show on the storefront: while PHOTOS_ONLY is on, only those that have at least one visible product. */
+export async function getStoreCategories(): Promise<Category[]> {
+  const cats = await getCategories();
+  if (!PHOTOS_ONLY) return cats;
+  const ids = new Set<string>();
+  if (isDemo) demo().products.forEach((p) => p.active && p.image_url && p.category_id && ids.add(p.category_id));
+  else {
+    const sb = await createClient();
+    const { data } = await sb.from("products").select("category_id").eq("active", true).not("image_url", "is", null).limit(1000);
+    (data ?? []).forEach((r) => r.category_id && ids.add(r.category_id));
+  }
+  return cats.filter((c) => ids.has(c.id));
+}
+
 /** A short list (home page, related items, calculator). Always bounded. */
 export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
   const limit = Math.min(query.limit ?? 100, 500);
@@ -143,9 +158,10 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
 }
 
 export async function countProducts(): Promise<number> {
-  if (isDemo) return demo().products.filter((p) => p.active).length;
+  if (isDemo) return demo().products.filter((p) => p.active && (!PHOTOS_ONLY || p.image_url)).length;
   const sb = await createClient();
-  const { count } = await sb.from("products").select("id", { count: "exact", head: true }).eq("active", true);
+  const base = sb.from("products").select("id", { count: "exact", head: true }).eq("active", true);
+  const { count } = PHOTOS_ONLY ? await base.not("image_url", "is", null) : await base;
   return count ?? 0;
 }
 
@@ -173,10 +189,11 @@ export async function getRelated(product: Product, limit = 4): Promise<Product[]
 
 /** Sizes that exist in the catalogue (for the shop filter). */
 export async function getSizes(): Promise<string[]> {
-  const base = isDemo ? demo().products.filter((p) => p.active && p.coverage_per_box > 0).map((p) => p.size) : null;
+  const base = isDemo ? demo().products.filter((p) => p.active && p.coverage_per_box > 0 && (!PHOTOS_ONLY || p.image_url)).map((p) => p.size) : null;
   if (base) return [...new Set(base.filter(Boolean) as string[])].sort();
   const sb = await createClient();
-  const { data } = await sb.from("products").select("size").eq("active", true).gt("coverage_per_box", 0).not("size", "is", null).limit(1000);
+  const { data } = await sb.from("products").select("size, image_url").eq("active", true).gt("coverage_per_box", 0).not("size", "is", null).limit(1000);
+  if (PHOTOS_ONLY) return [...new Set((data ?? []).filter((r) => r.image_url).map((r) => r.size as string))].sort();
   return [...new Set((data ?? []).map((r) => r.size as string))].sort();
 }
 
