@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import clsx from "clsx";
 import { adminListProducts, getCategories } from "@/lib/store";
 import { PageHeader } from "@/components/admin/ui";
+import { ProductFilters } from "@/components/admin/ProductFilters";
 import { Thumb } from "@/components/shop/Thumb";
 import { btn } from "@/components/ui/Button";
 import { money } from "@/lib/format";
@@ -29,12 +31,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       <PageHeader title="Products" sub={`${total.toLocaleString("en-GB")} ${stock ? "matching" : "in catalogue"}`}
         action={<div className="flex gap-2"><Link href="/admin/products/photos" className={btn("secondary", "md")}>Upload photos</Link><Link href="/admin/products/new" className={btn("primary", "md")}>Add product</Link></div>} />
 
-      <form className="mb-4 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
-        <input type="hidden" name="stock" value={sp.stock ?? ""} />
-        <input name="q" defaultValue={sp.q} placeholder="Search by name or product code" className="field min-w-0" />
-        <select name="category" defaultValue={sp.category ?? ""} className="field sm:w-auto"><option value="">All categories</option>{categories.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}</select>
-        <button className="rounded-full bg-steel-900 px-6 py-3 text-sm font-medium text-white">Search</button>
-      </form>
+      <Suspense fallback={<div className="mb-4 h-[3.25rem]" />}><ProductFilters categories={categories} /></Suspense>
       <div className="hide-scrollbar -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         {stockTabs.map(([v, l]) => (<Link key={v} href={href({ stock: v || undefined, page: undefined })} className={clsx("shrink-0 rounded-full px-4 py-2 text-sm font-medium", (sp.stock ?? "") === v ? "bg-steel-900 text-white" : "bg-steel-50 text-steel-700 hover:bg-steel-100")}>{l}</Link>))}
       </div>
